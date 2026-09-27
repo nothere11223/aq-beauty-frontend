@@ -14,6 +14,9 @@ export default function AdminDashboard() {
     lowStockItems: []
   });
 
+  // Bulletproof API URL fallback
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
+
   useEffect(() => {
     setIsMounted(true);
     fetchDashboardData();
@@ -22,8 +25,8 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       const [ordersRes, productsRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?t=${new Date().getTime()}`),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=100&t=${new Date().getTime()}`)
+        fetch(`${API_URL}/api/orders?t=${new Date().getTime()}`),
+        fetch(`${API_URL}/api/products?limit=100&t=${new Date().getTime()}`)
       ]);
 
       const ordersData = await ordersRes.json();
