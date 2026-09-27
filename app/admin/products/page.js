@@ -11,7 +11,6 @@ export default function AdminProducts() {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Track if we are editing an existing product
   const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -32,7 +31,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/products?limit=50');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=50`);
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       
@@ -54,7 +53,6 @@ export default function AdminProducts() {
     });
   };
 
-  // Populate form with existing product data for editing
   const handleEdit = (product) => {
     setFormData({
       name: product.name,
@@ -80,12 +78,11 @@ export default function AdminProducts() {
       let finalImageUrl = formData.image; 
       const fileInput = document.getElementById('imageUpload');
 
-      // 1. Upload new file to Cloudinary (if selected)
       if (fileInput && fileInput.files[0]) {
         const uploadData = new FormData();
         uploadData.append('image', fileInput.files[0]);
 
-        const uploadRes = await fetch('http://localhost:5001/api/upload', {
+        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
           method: 'POST',
           body: uploadData,
         });
@@ -100,11 +97,10 @@ export default function AdminProducts() {
         finalImageUrl = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1000';
       }
 
-      // 2. Determine if POST (Create) or PUT (Update)
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId 
-        ? `http://localhost:5001/api/products/${editingId}` 
-        : 'http://localhost:5001/api/products';
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/products/${editingId}` 
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
 
       const response = await fetch(url, {
         method,
@@ -120,7 +116,6 @@ export default function AdminProducts() {
 
       if (!response.ok) throw new Error('Failed to save product in Database');
 
-      // 3. Clean up UI
       await fetchProducts();
       setIsCreating(false);
       setEditingId(null);
@@ -138,7 +133,7 @@ export default function AdminProducts() {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/products/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete product');
@@ -149,7 +144,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Reset form when clicking cancel
   const handleCancel = () => {
     setIsCreating(false);
     setEditingId(null);
@@ -159,7 +153,6 @@ export default function AdminProducts() {
   return (
     <div className={`transition-opacity duration-500 ease-out outline-none ${isMounted ? 'opacity-100' : 'opacity-0'}`} tabIndex={-1}>
       
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-gray-900 tracking-tight">Product Catalog</h1>
@@ -175,7 +168,6 @@ export default function AdminProducts() {
         </button>
       </div>
 
-      {/* Inline Form */}
       {isCreating && (
         <form onSubmit={handleSave} className="mb-10 bg-white/80 backdrop-blur-2xl border border-white shadow-[0_12px_40px_rgba(0,0,0,0.05)] rounded-[3rem] p-8 sm:p-10 animate-in fade-in slide-in-from-top-4 duration-500">
           <h3 className="font-serif text-2xl font-bold text-gray-900 mb-6">
@@ -189,7 +181,6 @@ export default function AdminProducts() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             <div className="flex flex-col space-y-4">
               <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2">Product Image</label>
               <div className="w-full aspect-square bg-white/50 border border-gray-200 rounded-[2rem] flex flex-col items-center justify-center p-4 text-gray-400">
@@ -328,7 +319,6 @@ export default function AdminProducts() {
         </form>
       )}
 
-      {/* Product Grid */}
       {isLoading ? (
         <div className="flex justify-center items-center py-20">
           <Loader2 className="w-8 h-8 text-[#78a59b] animate-spin" />

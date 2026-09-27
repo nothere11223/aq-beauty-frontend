@@ -15,7 +15,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/orders');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -28,7 +28,7 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      const res = await fetch(`http://localhost:5001/api/orders/${orderId}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -67,7 +67,6 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-8">
       
-      {/* Top Title Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
         <div>
           <h1 className="font-serif text-3xl font-extrabold text-gray-900 tracking-tight">Order Management</h1>
@@ -85,7 +84,6 @@ export default function AdminOrdersPage() {
         </button>
       </div>
 
-      {/* Content Body */}
       {isLoading ? (
         <div className="text-center py-20 text-gray-400 font-serif text-lg animate-pulse">
           Loading fulfillment queue...
@@ -103,7 +101,6 @@ export default function AdminOrdersPage() {
               key={order._id} 
               className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.03)] rounded-[2rem] p-6 sm:p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
             >
-              {/* Order Meta & Customer Info */}
               <div className="space-y-3 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-xs font-mono font-bold bg-black text-white px-3 py-1 rounded-full">
@@ -124,7 +121,6 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              {/* Purchased Items Thumbnails */}
               <div className="flex items-center space-x-3 overflow-x-auto max-w-full py-1">
                 {order.items?.map((item, idx) => (
                   <div key={idx} className="flex items-center space-x-2 bg-white/60 p-2 rounded-2xl border border-gray-100 flex-shrink-0">
@@ -139,14 +135,12 @@ export default function AdminOrdersPage() {
                 ))}
               </div>
 
-              {/* Price & Action Controller */}
               <div className="flex flex-row lg:flex-col justify-between items-center lg:items-end w-full lg:w-auto pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-100 gap-4">
                 <div className="text-left lg:text-right">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block">Total Revenue</span>
                   <span className="font-serif text-2xl font-extrabold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
                 </div>
 
-                {/* Status Dropdown Controls */}
                 <select
                   disabled={updatingId === order._id}
                   value={order.status}
