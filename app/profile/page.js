@@ -18,22 +18,25 @@ export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
   useEffect(() => {
-    // Safely load and persist session state on mount
+    let isMounted = true;
     try {
       const savedUser = localStorage.getItem('aq_user');
-      if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
+      if (isMounted && savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
         setUser(JSON.parse(savedUser));
       }
     } catch (e) {
       console.error('Failed to parse user session', e);
     } finally {
-      setIsLoading(false);
+      if (isMounted) setIsLoading(false);
     }
+    return () => { isMounted = false; };
   }, []);
 
   const handleLogout = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     localStorage.removeItem('aq_user');
     localStorage.removeItem('token'); 
     setUser(null);
@@ -41,6 +44,8 @@ export default function ProfilePage() {
   };
 
   const handleImageUpload = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const file = e.target.files[0];
     if (!file) return;
 
@@ -113,7 +118,7 @@ export default function ProfilePage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
             <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] p-8 sm:p-10">
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
@@ -151,7 +156,7 @@ export default function ProfilePage() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    fileInputRef.current.click();
+                    fileInputRef.current?.click();
                   }}
                   className="group flex-shrink-0 whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-[0.97] transition-all duration-300 shadow-xl hover:-translate-y-0.5 disabled:opacity-50 mt-4 sm:mt-0 cursor-pointer outline-none"
                 >
@@ -192,7 +197,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Link href="/track-order" className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
+              <Link href="/track-order" onClick={(e) => e.stopPropagation()} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-[#78a59b]/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Package className="w-5 h-5 text-[#4a7c73]" />
