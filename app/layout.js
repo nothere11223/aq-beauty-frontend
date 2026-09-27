@@ -1,7 +1,6 @@
 import './globals.css';
 import { CartProvider } from '../context/CartContext';
 import CartDrawer from '../components/CartDrawer';
-import MobileNav from '../components/MobileNav'; // <-- 1. Imported here
 
 export const metadata = {
   title: 'AQ Beauty Hub | Luxury Skincare',
@@ -15,7 +14,6 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <CartDrawer />
           {children}
-          <MobileNav /> {/* <-- 2. Mounted globally here */}
         </CartProvider>
       </body>
     </html>
