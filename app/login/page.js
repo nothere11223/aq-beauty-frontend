@@ -13,7 +13,10 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
+  // Bulletproof API URL fallback for live production
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,7 +36,7 @@ export default function LoginPage() {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
 
     try {
-      const res = await fetch(`http://localhost:5001${endpoint}`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -63,7 +66,7 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:5001/api/auth/google', {
+      const res = await fetch(`${API_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential }),
@@ -114,19 +117,18 @@ export default function LoginPage() {
               </div>
             )}
 
-           {/* GOOGLE SIGN-IN BUTTON */}
-{/* GOOGLE SIGN-IN BUTTON */}
-<div className="flex justify-center mb-6">
-  <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-    <GoogleLogin
-      onSuccess={handleGoogleSuccess}
-      onError={() => setError('Google Authentication Failed')}
-      theme="outline"
-      size="large"
-      shape="pill"
-    />
-  </GoogleOAuthProvider>
-</div>
+            {/* GOOGLE SIGN-IN BUTTON */}
+            <div className="flex justify-center mb-6">
+              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google Authentication Failed')}
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                />
+              </GoogleOAuthProvider>
+            </div>
 
             <div className="flex items-center my-6">
               <div className="flex-grow border-t border-gray-200"></div>
