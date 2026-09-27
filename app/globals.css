@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-[#f4f9f8] via-[#eaf4f2] to-[#dcf0ee] text-gray-900 antialiased min-h-screen selection:bg-[#a3c9c2] selection:text-white;
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+/* Custom Utilities & Animations */
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 4s infinite;
+}
+
+.luxury-gold-gradient {
+  background: linear-gradient(135deg, #c5a059 0%, #dfc184 50%, #aa823d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes appleSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes appleSlideUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+}
+
+.animate-apple-dropdown {
+  animation: appleSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-apple-dropdown-exit {
+  animation: appleSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Force all buttons, links, and interactive elements to always remain clickable */
+button, a, input, select, textarea, [role="button"] {
+  pointer-events: auto !important;
+}
+
+/* Ensure fade-in wrapper layers never trap click events */
+.animate-ios-spring, .animate-fade-in {
+  pointer-events: auto !important;
+}
