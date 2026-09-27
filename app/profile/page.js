@@ -1,19 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { User, Mail, LogOut, Package, ShieldCheck, Loader2, Edit3, X } from 'lucide-react';
+import { User, Mail, LogOut, Package, ShieldCheck } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const fileInputRef = useRef(null);
 
   // Fallback to your real backend, NOT localhost
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-2pvjv418.b4a.run';
@@ -40,48 +37,6 @@ export default function ProfilePage() {
     localStorage.removeItem('token'); 
     setUser(null);
     router.push('/login');
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const currentUserId = user?.userId || user?._id || user?.id;
-    if (!currentUserId) {
-      alert('Session error: User ID not found. Please log out and sign back in.');
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      const uploadRes = await fetch(`${API_URL}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (!uploadRes.ok) throw new Error('Cloudinary upload failed');
-      const uploadData = await uploadRes.json();
-
-      const updateRes = await fetch(`${API_URL}/api/auth/update/${currentUserId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: uploadData.imageUrl })
-      });
-      if (!updateRes.ok) throw new Error('Database update failed');
-      const updatedUser = await updateRes.json();
-
-      setUser(updatedUser);
-      localStorage.setItem('aq_user', JSON.stringify(updatedUser));
-      
-    } catch (error) {
-      console.error(error);
-      alert('Failed to update profile picture. Please try again.');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
   };
 
   if (isLoading) {
@@ -120,23 +75,9 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
                   
-                  <div 
-                    className={`relative flex-shrink-0 ${user.image ? 'cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300' : ''}`} 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (user.image) setIsFullscreen(true);
-                    }}
-                    title={user.image ? "Tap to view full photo" : ""}
-                  >
-                    <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white pointer-events-none">
-                      {isUploading ? (
-                        <Loader2 className="w-8 h-8 animate-spin text-white" />
-                      ) : user.image ? (
-                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="font-serif text-5xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
-                      )}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white">
+                      <span className="font-serif text-5xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                     </div>
                   </div>
 
@@ -147,24 +88,6 @@ export default function ProfilePage() {
                     </span>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  disabled={isUploading}
-                  onClick={() => fileInputRef.current.click()}
-                  className="group flex-shrink-0 whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-[0.97] transition-all duration-300 shadow-xl hover:-translate-y-0.5 disabled:opacity-50 mt-4 sm:mt-0 cursor-pointer outline-none"
-                >
-                  <Edit3 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-                  <span>{isUploading ? 'Uploading...' : 'Change Photo'}</span>
-                </button>
-
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleImageUpload} 
-                  accept="image/*" 
-                  className="hidden" 
-                />
               </div>
 
               <div className="space-y-6">
@@ -203,7 +126,7 @@ export default function ProfilePage() {
                 </div>
               </Link>
 
-              <button onClick={handleLogout} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer text-left outline-none">
+              <button type="button" onClick={handleLogout} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer text-left outline-none">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-rose-100/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <LogOut className="w-5 h-5 text-rose-500" />
@@ -220,39 +143,6 @@ export default function ProfilePage() {
       </main>
       
       <Footer />
-
-      {isFullscreen && user?.image && (
-        <div 
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsFullscreen(false);
-          }}
-        >
-          <button 
-            type="button"
-            className="absolute top-8 right-8 text-white/70 hover:text-white transition-all duration-300 cursor-pointer outline-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsFullscreen(false);
-            }}
-          >
-            <X className="w-10 h-10 drop-shadow-lg" />
-          </button>
-          
-          <img 
-            src={user.image} 
-            alt="Full size profile" 
-            className="max-w-full max-h-[90vh] rounded-3xl shadow-2xl object-contain animate-in zoom-in-95 duration-300"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }
