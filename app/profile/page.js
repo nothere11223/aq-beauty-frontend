@@ -12,8 +12,14 @@ export default function ProfilePage() {
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem('aq_user');
-      if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
+      const token = localStorage.getItem('token');
+
+      // Only load user if both token and user payload exist
+      if (savedUser && savedUser !== 'undefined' && savedUser !== 'null' && token) {
         setUser(JSON.parse(savedUser));
+      } else {
+        // If token is missing, clear invalid state cleanly
+        setUser(null);
       }
     } catch (e) {
       console.error('Session error:', e);
@@ -25,6 +31,7 @@ export default function ProfilePage() {
   const handleLogout = () => {
     localStorage.removeItem('aq_user');
     localStorage.removeItem('token');
+    setUser(null);
     router.push('/login');
   };
 
@@ -45,7 +52,7 @@ export default function ProfilePage() {
 
         {!user ? (
           <div>
-            <p className="text-gray-600 mb-4">You are not logged in.</p>
+            <p className="text-gray-600 mb-4">You are not logged in or your session expired.</p>
             <Link href="/login" className="block text-center bg-black text-white py-2 px-4 rounded-md font-medium">
               Sign In
             </Link>
