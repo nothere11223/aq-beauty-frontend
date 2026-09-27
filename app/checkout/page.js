@@ -27,6 +27,8 @@ export default function CheckoutPage() {
     address: '',
   });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
+
   useEffect(() => {
     const savedUser = localStorage.getItem('aq_user');
     if (savedUser) {
@@ -58,9 +60,11 @@ export default function CheckoutPage() {
     
     setIsSubmitting(true);
 
+    const token = localStorage.getItem('token');
+
     const orderPayload = {
       ...formData,
-      userId: currentUser ? currentUser.userId : null,
+      userId: currentUser ? (currentUser.userId || currentUser._id || currentUser.id) : null,
       items: cart.map(item => ({
         productId: item.id || item._id,
         name: item.name,
@@ -74,19 +78,26 @@ export default function CheckoutPage() {
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(orderPayload),
       });
 
-      if (!response.ok) throw new Error('Failed to place order');
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Failed to place order');
+      }
       
       clearCart();
       setIsSuccess(true);
     } catch (error) {
       console.error("Checkout Error:", error);
-      alert("There was an issue placing your order. Please try again.");
+      alert(error.message || "There was an issue placing your order. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -99,7 +110,7 @@ export default function CheckoutPage() {
           <div className="bg-white/80 backdrop-blur-2xl border border-white rounded-[3rem] p-12 max-w-md w-full text-center shadow-xl">
             <CheckCircle className="w-16 h-16 text-[#4a7c73] mx-auto mb-6" />
             <h1 className="font-serif text-3xl font-bold mb-4">Order Confirmed</h1>
-            <p className="text-gray-600 text-sm mb-8">Thank you for your purchase. Your order has been linked to your account and is ready for tracking.</p>
+            <p className="text-gray-600 text-sm mb-8">Thank you for your purchase. Your order has been placed successfully and synced to your admin dashboard.</p>
             <div className="space-y-3">
               <Link 
                 href="/track-order"
@@ -125,7 +136,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col antialiased">
       <Navbar />
 
-      <main className="flex-grow w-full max-w-[92%] xl:max-w-[1200px] mx-auto px-4 sm:px-8 pt-32 sm:pt-40 pb-20">
+      <main className="flex-grow w-full max-w-[92%] xl:max-w-[1200px] mx-auto px-4 sm:px-8 pt-32 sm:pt-40 pb-32">
         
         <Link href="/shop" className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-8 group cursor-pointer">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -214,7 +225,7 @@ export default function CheckoutPage() {
                 type="submit" 
                 form="checkout-form"
                 disabled={isSubmitting || cart.length === 0}
-                className="flex items-center justify-center space-x-2 w-full bg-black text-white px-8 py-4 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl cursor-pointer"
+                className="flex items-center justify-center space-x-2 w-full bg-black text-white px-8 py-4 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-98 transition-all disabled:opacity-50 shadow-xl cursor-pointer"
               >
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>Place Order (COD)</span>}
               </button>
