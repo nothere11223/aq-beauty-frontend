@@ -18,40 +18,32 @@ export default function ProfilePage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
   useEffect(() => {
-    let isMounted = true;
     try {
       const savedUser = localStorage.getItem('aq_user');
-      if (isMounted && savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
+      if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
         setUser(JSON.parse(savedUser));
       }
     } catch (e) {
-      console.error('Failed to parse user session', e);
+      console.error('Session error:', e);
     } finally {
-      if (isMounted) setIsLoading(false);
+      setIsLoading(false);
     }
-    return () => { isMounted = false; };
   }, []);
 
   const handleLogout = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+    e.preventDefault();
     localStorage.removeItem('aq_user');
-    localStorage.removeItem('token'); 
-    setUser(null);
+    localStorage.removeItem('token');
     router.push('/login');
   };
 
   const handleImageUpload = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const currentUserId = user?.userId || user?._id || user?.id;
     if (!currentUserId) {
-      alert('Session error: User ID not found. Please log out and sign back in.');
+      alert('User ID not found. Please log in again.');
       return;
     }
 
@@ -59,28 +51,27 @@ export default function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       const uploadRes = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });
-      if (!uploadRes.ok) throw new Error('Cloudinary upload failed');
+      if (!uploadRes.ok) throw new Error('Upload failed');
       const uploadData = await uploadRes.json();
 
       const updateRes = await fetch(`${API_URL}/api/auth/update/${currentUserId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: uploadData.imageUrl })
+        body: JSON.stringify({ image: uploadData.imageUrl }),
       });
       if (!updateRes.ok) throw new Error('Database update failed');
       const updatedUser = await updateRes.json();
 
       setUser(updatedUser);
       localStorage.setItem('aq_user', JSON.stringify(updatedUser));
-      
-    } catch (error) {
-      console.error(error);
-      alert('Failed to update profile picture. Please try again.');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update picture.');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -89,7 +80,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col">
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-gray-500 font-serif text-xl animate-pulse">Loading profile...</div>
@@ -99,7 +90,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col antialiased relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col antialiased">
       <Navbar />
 
       <main className="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-8 pt-36 pb-24">
@@ -118,31 +109,29 @@ export default function ProfilePage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
+          <div className="space-y-6">
+            
+            {/* User Info Card */}
             <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] p-8 sm:p-10">
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
+                
                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-                  
                   <div 
-                    className={`relative flex-shrink-0 ${user.image ? 'cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300' : ''}`} 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (user.image) setIsFullscreen(true);
-                    }}
+                    className="relative cursor-pointer"
+                    onClick={() => user.image && setIsFullscreen(true)}
                   >
                     <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white">
                       {isUploading ? (
                         <Loader2 className="w-8 h-8 animate-spin text-white" />
                       ) : user.image ? (
-                        <img src={user.image} alt={user.name} className="w-full h-full object-cover pointer-events-none" />
+                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                       ) : (
                         <span className="font-serif text-5xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-2 sm:mt-0">
+                  <div>
                     <h2 className="font-serif text-3xl font-bold text-gray-900">{user.name}</h2>
                     <span className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-[#4a7c73] mt-2 bg-[#4a7c73]/10 px-4 py-1.5 rounded-full">
                       <ShieldCheck className="w-4 h-4 mr-1.5" /> Verified Client
@@ -153,14 +142,10 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   disabled={isUploading}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  className="group flex-shrink-0 whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-[0.97] transition-all duration-300 shadow-xl hover:-translate-y-0.5 disabled:opacity-50 mt-4 sm:mt-0 cursor-pointer outline-none"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 transition-all shadow-xl disabled:opacity-50 cursor-pointer"
                 >
-                  <Edit3 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                  <Edit3 className="w-4 h-4" />
                   <span>{isUploading ? 'Uploading...' : 'Change Photo'}</span>
                 </button>
 
@@ -175,7 +160,7 @@ export default function ProfilePage() {
 
               <div className="space-y-6">
                 <div className="flex items-center space-x-5">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
                     <Mail className="w-5 h-5 text-gray-700" />
                   </div>
                   <div>
@@ -185,7 +170,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex items-center space-x-5">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
                     <User className="w-5 h-5 text-gray-700" />
                   </div>
                   <div>
@@ -196,13 +181,14 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Actions Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Link href="/track-order" onClick={(e) => e.stopPropagation()} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
+              <Link href="/track-order" className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white transition-all shadow-sm">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-[#78a59b]/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-[#78a59b]/10 rounded-full flex items-center justify-center">
                     <Package className="w-5 h-5 text-[#4a7c73]" />
                   </div>
-                  <div className="text-left">
+                  <div>
                     <h3 className="font-bold text-base text-gray-900">Order History</h3>
                     <p className="text-xs uppercase tracking-widest text-gray-500 mt-0.5">Track your packages</p>
                   </div>
@@ -212,55 +198,40 @@ export default function ProfilePage() {
               <button 
                 type="button" 
                 onClick={handleLogout} 
-                className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer text-left outline-none w-full"
+                className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 transition-all shadow-sm text-left w-full cursor-pointer"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-rose-100/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-rose-100/50 rounded-full flex items-center justify-center">
                     <LogOut className="w-5 h-5 text-rose-500" />
                   </div>
                   <div>
                     <h3 className="font-bold text-base text-rose-600">Sign Out</h3>
-                    <p className="text-xs uppercase tracking-widest text-rose-400/80 mt-0.5">End your session</p>
+                    <p className="text-xs uppercase tracking-widest text-rose-400 mt-0.5">End your session</p>
                   </div>
                 </div>
               </button>
             </div>
+
           </div>
         )}
       </main>
-      
+
       <Footer />
 
+      {/* Fullscreen Image Lightbox */}
       {isFullscreen && user?.image && (
         <div 
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsFullscreen(false);
-          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setIsFullscreen(false)}
         >
           <button 
-            type="button"
-            className="absolute top-8 right-8 text-white/70 hover:text-white transition-all duration-300 cursor-pointer outline-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsFullscreen(false);
-            }}
+            type="button" 
+            className="absolute top-6 right-6 text-white cursor-pointer"
+            onClick={() => setIsFullscreen(false)}
           >
-            <X className="w-10 h-10 drop-shadow-lg" />
+            <X className="w-8 h-8" />
           </button>
-          
-          <img 
-            src={user.image} 
-            alt="Full size profile" 
-            className="max-w-full max-h-[90vh] rounded-3xl shadow-2xl object-contain animate-in zoom-in-95 duration-300"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
+          <img src={user.image} alt="Fullscreen profile" className="max-w-full max-h-[85vh] rounded-2xl object-contain" />
         </div>
       )}
     </div>
