@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Clock, CheckCircle2, Truck, XCircle, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { ShoppingBag, Clock, CheckCircle2, Truck, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -67,6 +68,15 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-8">
       
+      {/* Back to Dashboard Button */}
+      <Link 
+        href="/admin" 
+        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors group cursor-pointer w-max"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+        <span>Back to Dashboard</span>
+      </Link>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
         <div>
           <h1 className="font-serif text-3xl font-extrabold text-gray-900 tracking-tight">Order Management</h1>

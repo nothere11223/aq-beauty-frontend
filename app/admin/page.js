@@ -22,16 +22,15 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       const [ordersRes, productsRes] = await Promise.all([
-        fetch(`http://localhost:5001/api/orders?t=${new Date().getTime()}`),
-        fetch(`http://localhost:5001/api/products?t=${new Date().getTime()}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?t=${new Date().getTime()}`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=100&t=${new Date().getTime()}`)
       ]);
 
-      // Read JSON exactly once to prevent the stream error
       const ordersData = await ordersRes.json();
       const productsData = await productsRes.json();
 
       const orders = Array.isArray(ordersData) ? ordersData : [];
-      const products = Array.isArray(productsData) ? productsData : [];
+      const products = Array.isArray(productsData) ? productsData : (productsData.products || []);
 
       const active = orders.filter(o => o.status !== 'Cancelled' && o.status !== 'Delivered');
       const totalRevenue = orders
@@ -129,7 +128,7 @@ export default function AdminDashboard() {
                           <p className="text-[10px] uppercase tracking-widest text-rose-500 font-bold mt-1">Only {item.stock} left</p>
                         </div>
                       </div>
-                      <Link href="/admin/products" className="text-xs font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
+                      <Link href="/admin/inventory" className="text-xs font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
                         Restock
                       </Link>
                     </div>
@@ -138,7 +137,6 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            {/* Light Glassmorphism Portal */}
             <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgba(0,0,0,0.03)] rounded-[2.5rem] p-8 flex flex-col justify-between">
               <div>
                 <h2 className="font-serif text-xl font-bold text-gray-900 mb-2">Management Portal</h2>
@@ -157,7 +155,7 @@ export default function AdminDashboard() {
                 <Link href="/admin/products" className="group flex items-center justify-between p-5 bg-white/50 hover:bg-white border border-white rounded-2xl active:scale-[0.98] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-sm hover:shadow-md">
                   <div className="flex items-center space-x-3 text-gray-900">
                     <Package className="w-5 h-5 text-[#4a7c73]" />
-                    <span className="text-sm font-bold tracking-wide">Update Inventory</span>
+                    <span className="text-sm font-bold tracking-wide">Product Catalog</span>
                   </div>
                   <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#4a7c73] group-hover:translate-x-1 transition-all" />
                 </Link>

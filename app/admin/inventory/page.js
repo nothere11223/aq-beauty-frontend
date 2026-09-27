@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layers, AlertCircle, TrendingUp, Edit2, Check, X, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Layers, AlertCircle, TrendingUp, Edit2, Check, X, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function AdminInventory() {
   const [products, setProducts] = useState([]);
@@ -73,6 +74,15 @@ export default function AdminInventory() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       
+      {/* Back to Dashboard Button */}
+      <Link 
+        href="/admin" 
+        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors group cursor-pointer w-max"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+        <span>Back to Dashboard</span>
+      </Link>
+
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-gray-900 tracking-tight">Inventory Control</h1>

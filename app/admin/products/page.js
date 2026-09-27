@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Package, Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Package, Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function AdminProducts() {
   const [isMounted, setIsMounted] = useState(false);
@@ -153,6 +154,15 @@ export default function AdminProducts() {
   return (
     <div className={`transition-opacity duration-500 ease-out outline-none ${isMounted ? 'opacity-100' : 'opacity-0'}`} tabIndex={-1}>
       
+      {/* Back to Dashboard Button */}
+      <Link 
+        href="/admin" 
+        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-6 group cursor-pointer w-max"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+        <span>Back to Dashboard</span>
+      </Link>
+
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-gray-900 tracking-tight">Product Catalog</h1>
