@@ -117,17 +117,15 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* GOOGLE SIGN-IN BUTTON */}
+            {/* GOOGLE SIGN-IN BUTTON (Single Clean Instance) */}
             <div className="flex justify-center mb-6">
-              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google Authentication Failed')}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                />
-              </GoogleOAuthProvider>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Authentication Failed')}
+                theme="outline"
+                size="large"
+                shape="pill"
+              />
             </div>
 
             <div className="flex items-center my-6">
