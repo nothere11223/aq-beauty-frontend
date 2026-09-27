@@ -16,7 +16,7 @@ export default function AdminInventory() {
 
   const fetchInventory = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/products?limit=100');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=100`);
       const data = await res.json();
       setProducts(data.products || []);
     } catch (err) {
@@ -39,9 +39,7 @@ export default function AdminInventory() {
   const handleSaveStock = async (id) => {
     setIsSaving(true);
     try {
-      console.log(`Sending update for Product ID: ${id}, New Stock: ${editValue}`);
-      
-      const res = await fetch(`http://localhost:5001/api/products/${id}/stock`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}/stock`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stock: editValue }),
@@ -53,7 +51,6 @@ export default function AdminInventory() {
         );
         setEditingId(null);
       } else {
-        // This will extract the EXACT error from your backend and show it to you
         const errorData = await res.json().catch(() => ({}));
         console.error("Backend Error Details:", errorData);
         alert(`Backend Error: ${errorData.error || 'Check your Node terminal'}`);
@@ -105,7 +102,6 @@ export default function AdminInventory() {
                 className="bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-[2rem] p-5 flex flex-col md:flex-row md:items-center justify-between hover:shadow-md hover:bg-white/80 transition-all duration-300 gap-4"
               >
                 
-                {/* Product Info */}
                 <div className="flex items-center space-x-4 flex-1">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden flex-shrink-0">
                     {item.image ? (
@@ -120,10 +116,8 @@ export default function AdminInventory() {
                   </div>
                 </div>
 
-                {/* Stock Controls */}
                 <div className="flex items-center justify-between md:justify-end space-x-6 md:w-1/2">
                   
-                  {/* Status Badge */}
                   <div className={`hidden sm:flex px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-widest items-center space-x-1.5 flex-shrink-0 ${
                     status.type === 'good' ? 'bg-[#e2f0ed] border-[#d1e7e2] text-[#4a7c73]' :
                     status.type === 'warning' ? 'bg-amber-50 border-amber-100 text-amber-600' :
@@ -133,7 +127,6 @@ export default function AdminInventory() {
                     <span>{status.label}</span>
                   </div>
 
-                  {/* Stock Editor */}
                   <div className="flex items-center space-x-3 bg-white px-4 py-2 rounded-2xl border border-gray-100 shadow-sm min-w-[140px] justify-end">
                     {isEditing ? (
                       <>

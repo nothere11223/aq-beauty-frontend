@@ -23,13 +23,11 @@ function ShopContent() {
   const fetchProducts = async (page) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/products?page=${page}&limit=12`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?page=${page}&limit=12`);
       const data = await res.json();
       
-      // Extract the array from the pagination object
       let fetchedProducts = Array.isArray(data) ? data : (data.products || []);
       
-      // Apply frontend search filtering if a search query exists
       if (searchQuery) {
         fetchedProducts = fetchedProducts.filter(p => 
           p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 

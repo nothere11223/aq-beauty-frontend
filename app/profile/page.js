@@ -15,9 +15,9 @@ export default function ProfilePage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fileInputRef = useRef(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+  // Fallback to your real backend, NOT localhost
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-2pvjv418.b4a.run';
 
-  // Completely locked down session loader that ignores resize re-mounts
   useEffect(() => {
     const loadSession = () => {
       try {
@@ -120,7 +120,6 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
                   
-                  {/* Avatar Container */}
                   <div 
                     className={`relative flex-shrink-0 ${user.image ? 'cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform duration-300' : ''}`} 
                     onClick={(e) => {
@@ -222,7 +221,6 @@ export default function ProfilePage() {
       
       <Footer />
 
-      {/* FULLSCREEN IMAGE MODAL */}
       {isFullscreen && user?.image && (
         <div 
           className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"

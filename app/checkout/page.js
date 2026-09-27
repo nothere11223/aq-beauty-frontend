@@ -27,7 +27,6 @@ export default function CheckoutPage() {
     address: '',
   });
 
-  // Auto-fill user details from localStorage on mount so you don't type them twice
   useEffect(() => {
     const savedUser = localStorage.getItem('aq_user');
     if (savedUser) {
@@ -37,7 +36,7 @@ export default function CheckoutPage() {
         setFormData(prev => ({
           ...prev,
           customerName: parsed.name || '',
-          email: parsed.email || '', // If your login stores email, it auto-fills here
+          email: parsed.email || '',
         }));
       } catch (e) {
         console.error("Failed to parse user session", e);
@@ -61,7 +60,7 @@ export default function CheckoutPage() {
 
     const orderPayload = {
       ...formData,
-      userId: currentUser ? currentUser.userId : null, // Permanently binds order to your account profile
+      userId: currentUser ? currentUser.userId : null,
       items: cart.map(item => ({
         productId: item.id || item._id,
         name: item.name,
@@ -75,7 +74,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const response = await fetch('http://localhost:5001/api/orders', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload),
@@ -173,7 +172,6 @@ export default function CheckoutPage() {
             </form>
           </div>
 
-          {/* Order Summary */}
           <div className="w-full lg:w-2/5">
             <div className="bg-white/80 backdrop-blur-3xl border border-white rounded-[2.5rem] p-8 sm:p-10 shadow-lg sticky top-32">
               <h2 className="font-serif text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>

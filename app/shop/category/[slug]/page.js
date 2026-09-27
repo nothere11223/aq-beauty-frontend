@@ -23,7 +23,7 @@ export default function CategoryPage() {
   const fetchCategoryProducts = async (page) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/products?category=${categorySlug}&page=${page}&limit=8`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?category=${categorySlug}&page=${page}&limit=8`);
       const data = await res.json();
       
       if (Array.isArray(data)) {

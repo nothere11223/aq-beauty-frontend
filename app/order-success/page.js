@@ -24,7 +24,7 @@ export default function TrackOrderPage() {
 
   const fetchUserOrders = async (userId) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/orders/my-orders/${userId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/my-orders/${userId}`);
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
