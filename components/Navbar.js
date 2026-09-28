@@ -20,6 +20,19 @@ export default function Navbar() {
   const dropdownRef = useRef(null);
   const router = useRouter();
 
+  // TEMPORARY DEBUG TRAP: Catch what is deleting the session
+  useEffect(() => {
+    const originalRemove = localStorage.removeItem;
+    localStorage.removeItem = function(key) {
+      if (key === 'token' || key === 'aq_user') {
+        console.error(`🚨 ALERT: Something just deleted ${key}! See stack trace below:`);
+        console.trace(); // This prints the EXACT file and line number that called removeItem
+      }
+      originalRemove.apply(this, arguments);
+    };
+    return () => { localStorage.removeItem = originalRemove; }; // Cleanup
+  }, []);
+
   // Stable session loader that will not wipe state on mobile re-renders
   useEffect(() => {
     const loadUser = () => {
