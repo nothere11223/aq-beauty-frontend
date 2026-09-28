@@ -17,7 +17,6 @@ export default function CartDrawer() {
     setIsCartOpen(false);
 
     const savedUser = localStorage.getItem('aq_user');
-    
     if (!savedUser) {
       router.push('/login');
     } else {
@@ -34,12 +33,13 @@ export default function CartDrawer() {
         onClick={() => setIsCartOpen(false)}
       />
 
+      {/* Increased bottom space so drawer clears the bottom mobile bar */}
       <div 
-        className={`fixed top-4 bottom-4 right-4 w-[calc(100%-2rem)] sm:w-[420px] bg-white/90 backdrop-blur-3xl shadow-[-15px_15px_40px_rgba(0,0,0,0.08)] border border-white/80 z-[70] flex flex-col rounded-[2.5rem] overflow-hidden transition-transform duration-500 ${
+        className={`fixed top-4 bottom-24 right-4 w-[calc(100%-2rem)] sm:w-[420px] bg-white/95 backdrop-blur-3xl shadow-[-15px_15px_40px_rgba(0,0,0,0.1)] border border-white/80 z-[70] flex flex-col rounded-[2.5rem] overflow-hidden transition-transform duration-500 ${
           isCartOpen ? 'translate-x-0' : 'translate-x-[120%]'
         }`}
       >
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100/50 bg-white/50">
+        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100/50 bg-white/50">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 bg-gray-50 rounded-full border border-gray-100 shadow-sm">
               <ShoppingBag className="w-5 h-5 text-gray-900" />
@@ -59,8 +59,8 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* Added bottom padding pb-36 so items don't hide behind mobile toolbars */}
-        <div className="flex-1 overflow-y-auto p-6 pb-36 space-y-4 custom-scrollbar">
+        {/* Deep bottom padding so items scroll past the checkout footer */}
+        <div className="flex-1 overflow-y-auto p-6 pb-44 space-y-4 custom-scrollbar">
           {cart?.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-5 opacity-80">
               <div className="p-6 bg-gray-50 rounded-full border border-gray-100">
@@ -119,8 +119,9 @@ export default function CartDrawer() {
           )}
         </div>
 
+        {/* Absolute Footer pinned securely above the mobile bottom bar */}
         {cart?.length > 0 && (
-          <div className="p-6 bg-white/95 border-t border-gray-100 space-y-5 rounded-b-[2.5rem] shadow-2xl">
+          <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/95 backdrop-blur-md border-t border-gray-100 space-y-4 shadow-2xl rounded-b-[2.5rem]">
             <div className="flex justify-between items-end text-gray-900 px-2">
               <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Subtotal</span>
               <span className="font-serif text-2xl font-bold leading-none">${cartTotal.toFixed(2)}</span>
@@ -128,7 +129,7 @@ export default function CartDrawer() {
             
             <button 
               onClick={handleCheckoutClick}
-              className="group w-full flex items-center justify-center space-x-2 bg-black text-white px-8 py-4.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-xl cursor-pointer"
+              className="group w-full flex items-center justify-center space-x-2 bg-black text-white px-8 py-4 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-xl cursor-pointer"
             >
               <span>Secure Checkout</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
