@@ -20,20 +20,7 @@ export default function Navbar() {
   const dropdownRef = useRef(null);
   const router = useRouter();
 
-  // TEMPORARY DEBUG TRAP: Catch what is deleting the session
-  useEffect(() => {
-    const originalRemove = localStorage.removeItem;
-    localStorage.removeItem = function(key) {
-      if (key === 'token' || key === 'aq_user') {
-        console.error(`🚨 ALERT: Something just deleted ${key}! See stack trace below:`);
-        console.trace(); // This prints the EXACT file and line number that called removeItem
-      }
-      originalRemove.apply(this, arguments);
-    };
-    return () => { localStorage.removeItem = originalRemove; }; // Cleanup
-  }, []);
-
-  // Stable session loader that will not wipe state on mobile re-renders
+  // Stable session loader
   useEffect(() => {
     const loadUser = () => {
       try {
@@ -59,7 +46,13 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = (e) => {
+    // 1. Prevent ghost clicks or bubbling
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     localStorage.removeItem('aq_user');
     localStorage.removeItem('token');
     setUser(null);
@@ -108,10 +101,13 @@ export default function Navbar() {
 
   return (
     <>
-      <div 
-        onClick={() => { setIsMobileMenuOpen(false); setIsSearchOpen(false); }}
-        className={`fixed inset-0 z-40 bg-black/20 backdrop-blur-md transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-      />
+      {/* Ensure backdrop physically unmounts instead of just hiding */}
+      {isOpen && (
+        <div 
+          onClick={() => { setIsMobileMenuOpen(false); setIsSearchOpen(false); }}
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md animate-in fade-in duration-300"
+        />
+      )}
 
       <div className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-3 px-4 pointer-events-none">
         <div className="relative w-full max-w-6xl pointer-events-auto">
@@ -120,11 +116,15 @@ export default function Navbar() {
             
             <div className="flex items-center space-x-4 sm:space-x-0">
               <button 
+                type="button"
                 onClick={handleToggle}
                 className="md:hidden p-3 text-gray-900 hover:bg-gray-100/80 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-90 shadow-sm cursor-pointer outline-none relative w-11 h-11 flex items-center justify-center"
               >
-                <Menu className={`absolute w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isMobileMenuOpen ? 'opacity-0 scale-50 -rotate-90' : 'opacity-100 scale-100 rotate-0'}`} strokeWidth={2.5} />
-                <X className={`absolute w-5 h-5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isMobileMenuOpen ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 rotate-90'}`} strokeWidth={2.5} />
+                {isMobileMenuOpen ? (
+                  <X className="absolute w-5 h-5 animate-in spin-in-90 duration-300" strokeWidth={2.5} />
+                ) : (
+                  <Menu className="absolute w-5 h-5 animate-in spin-in-90 duration-300" strokeWidth={2.5} />
+                )}
               </button>
 
               <Link href="/" className="font-serif text-2xl sm:text-3xl font-extrabold text-black tracking-tight hover:opacity-70 active:scale-95 transition-all duration-300 ease-out ml-1">
@@ -141,6 +141,7 @@ export default function Navbar() {
 
             <div className="flex items-center space-x-2">
               <button 
+                type="button"
                 onClick={handleSearchToggle}
                 className="p-3 bg-white/70 hover:bg-white text-black rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white cursor-pointer"
               >
@@ -148,6 +149,7 @@ export default function Navbar() {
               </button>
 
               <button 
+                type="button"
                 onClick={handleOpenCart}
                 className="relative p-3 bg-white/70 hover:bg-white text-black rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white cursor-pointer group"
               >
@@ -162,6 +164,7 @@ export default function Navbar() {
               {user ? (
                 <div className="relative hidden md:block" ref={dropdownRef}>
                   <button 
+                    type="button"
                     onClick={() => setShowDropdown(!showDropdown)}
                     className="relative p-1 bg-white/70 hover:bg-white text-black rounded-full shadow-sm border border-white cursor-pointer outline-none ml-1"
                   >
@@ -175,7 +178,7 @@ export default function Navbar() {
                   </button>
 
                   {showDropdown && (
-                    <div className="absolute right-0 mt-3 w-72 bg-white/95 backdrop-blur-3xl border border-white shadow-2xl rounded-[2rem] p-3">
+                    <div className="absolute right-0 mt-3 w-72 bg-white/95 backdrop-blur-3xl border border-white shadow-2xl rounded-[2rem] p-3 animate-in fade-in zoom-in-95 duration-200">
                       <div className="p-5 border-b border-gray-100/80 bg-gray-50/50 rounded-3xl mb-2 text-center">
                         <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] flex items-center justify-center text-white overflow-hidden border-2 border-white">
                           {user?.image ? (
@@ -203,7 +206,7 @@ export default function Navbar() {
                       </div>
 
                       <div className="mt-1 p-1 border-t border-gray-100">
-                        <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-4 py-3.5 rounded-2xl hover:bg-rose-50 text-rose-500 cursor-pointer outline-none">
+                        <button type="button" onClick={handleLogout} className="w-full flex items-center space-x-4 px-4 py-3.5 rounded-2xl hover:bg-rose-50 text-rose-500 cursor-pointer outline-none">
                           <LogOut className="w-4 h-4" />
                           <span className="text-xs font-bold uppercase tracking-wider">Sign Out</span>
                         </button>
@@ -222,49 +225,53 @@ export default function Navbar() {
             </div>
           </header>
 
-          {/* Smooth Search Dropdown */}
-          <div className={`absolute left-0 right-0 top-[calc(100%+1rem)] bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-4 sm:p-5 transition-all duration-700 ${isSearchOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-3 scale-95 pointer-events-none'}`}>
-            <form onSubmit={handleSearchSubmit} className="flex items-center space-x-3">
-              <Search className="w-5 h-5 text-gray-400 ml-2" />
-              <input 
-                type="text"
-                placeholder="Search luxury skincare, serums, makeup..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent border-none text-sm text-gray-900 focus:outline-none px-2 py-2"
-              />
-              <button type="submit" className="bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer">
-                Search
-              </button>
-            </form>
-          </div>
+          {/* Conditionally rendered search dropdown */}
+          {isSearchOpen && (
+            <div className="absolute left-0 right-0 top-[calc(100%+1rem)] bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-4 sm:p-5 animate-in slide-in-from-top-4 fade-in duration-300">
+              <form onSubmit={handleSearchSubmit} className="flex items-center space-x-3">
+                <Search className="w-5 h-5 text-gray-400 ml-2" />
+                <input 
+                  type="text"
+                  placeholder="Search luxury skincare, serums, makeup..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent border-none text-sm text-gray-900 focus:outline-none px-2 py-2"
+                />
+                <button type="submit" className="bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer">
+                  Search
+                </button>
+              </form>
+            </div>
+          )}
 
-          {/* Smooth Mobile Menu */}
-          <div className={`absolute left-0 right-0 top-[calc(100%+1rem)] md:hidden bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-6 flex flex-col space-y-2 transition-all duration-700 ${isMobileMenuOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-3 scale-95 pointer-events-none'}`}>
-            <button onClick={() => handleNavigation('/')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Home</button>
-            <button onClick={() => handleNavigation('/shop')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Shop All</button>
-            <button onClick={() => handleNavigation('/track-order')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Track Order</button>
-            <button onClick={() => handleNavigation('/support')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Support</button>
-            
-            {user ? (
-              <div className="pt-3 mt-1 border-t border-gray-100/80 flex flex-col space-y-2.5">
-                <button onClick={() => handleNavigation('/profile')} className="w-full flex items-center justify-center space-x-2 bg-[#f0f7f5] text-[#4a7c73] py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest border border-[#d1e7e2]">
-                  <Settings className="w-4 h-4" />
-                  <span>Client Portal</span>
-                </button>
-                <button onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 bg-rose-50 text-rose-600 py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest border border-rose-100">
-                  <LogOut className="w-4 h-4" />
-                  <span>Secure Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <div className="pt-3 mt-1 border-t border-gray-100/80">
-                <button onClick={() => handleNavigation('/login')} className="w-full bg-black text-white py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest shadow-md">
-                  Sign In / Register
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Conditionally rendered Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="absolute left-0 right-0 top-[calc(100%+1rem)] md:hidden bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-6 flex flex-col space-y-2 animate-in slide-in-from-top-4 fade-in duration-300">
+              <button type="button" onClick={() => handleNavigation('/')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Home</button>
+              <button type="button" onClick={() => handleNavigation('/shop')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Shop All</button>
+              <button type="button" onClick={() => handleNavigation('/track-order')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Track Order</button>
+              <button type="button" onClick={() => handleNavigation('/support')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Support</button>
+              
+              {user ? (
+                <div className="pt-3 mt-1 border-t border-gray-100/80 flex flex-col space-y-2.5">
+                  <button type="button" onClick={() => handleNavigation('/profile')} className="w-full flex items-center justify-center space-x-2 bg-[#f0f7f5] text-[#4a7c73] py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest border border-[#d1e7e2]">
+                    <Settings className="w-4 h-4" />
+                    <span>Client Portal</span>
+                  </button>
+                  <button type="button" onClick={handleLogout} className="w-full flex items-center justify-center space-x-2 bg-rose-50 text-rose-600 py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest border border-rose-100">
+                    <LogOut className="w-4 h-4" />
+                    <span>Secure Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-3 mt-1 border-t border-gray-100/80">
+                  <button type="button" onClick={() => handleNavigation('/login')} className="w-full bg-black text-white py-3.5 px-5 rounded-full text-xs font-bold uppercase tracking-widest shadow-md">
+                    Sign In / Register
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </div>
