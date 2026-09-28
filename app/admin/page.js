@@ -7,6 +7,7 @@ import { DollarSign, ShoppingBag, Package, AlertCircle, Loader2, ArrowRight } fr
 export default function AdminDashboard() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState(null); // NEW: State to catch authentication errors
   const [stats, setStats] = useState({
     revenue: 0,
     activeOrders: 0,
@@ -24,15 +25,38 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      // 1. Grab the ADMIN token specifically
+      const adminToken = localStorage.getItem('aq_admin_token');
+      
+      if (!adminToken) {
+        throw new Error('Admin token missing. You are not logged in as an administrator.');
+      }
+
+      // 2. Attach the Authorization header
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      };
+
       const [ordersRes, productsRes] = await Promise.all([
-        fetch(`${API_URL}/api/orders?t=${new Date().getTime()}`),
-        fetch(`${API_URL}/api/products?limit=100&t=${new Date().getTime()}`)
+        fetch(`${API_URL}/api/orders?t=${new Date().getTime()}`, { headers }),
+        fetch(`${API_URL}/api/products?limit=100&t=${new Date().getTime()}`, { headers })
       ]);
+
+      // 3. Catch authentication/server errors explicitly
+      if (!ordersRes.ok) {
+        const errorText = await ordersRes.text();
+        throw new Error(`Backend rejected orders request (Status: ${ordersRes.status}). Message: ${errorText}`);
+      }
+      if (!productsRes.ok) {
+        const errorText = await productsRes.text();
+        throw new Error(`Backend rejected products request (Status: ${productsRes.status}). Message: ${errorText}`);
+      }
 
       const ordersData = await ordersRes.json();
       const productsData = await productsRes.json();
 
-      const orders = Array.isArray(ordersData) ? ordersData : [];
+      const orders = Array.isArray(ordersData) ? ordersData : (ordersData.orders || []);
       const products = Array.isArray(productsData) ? productsData : (productsData.products || []);
 
       const active = orders.filter(o => o.status !== 'Cancelled' && o.status !== 'Delivered');
@@ -48,8 +72,10 @@ export default function AdminDashboard() {
         totalProducts: products.length,
         lowStockItems: lowStock
       });
+      setAuthError(null); // Clear errors on success
     } catch (err) {
       console.error("Error loading dashboard:", err);
+      setAuthError(err.message); // Set the error so the UI shows it
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +98,16 @@ export default function AdminDashboard() {
       {isLoading ? (
         <div className="flex justify-center items-center py-32">
           <Loader2 className="w-8 h-8 text-[#78a59b] animate-spin" />
+        </div>
+      ) : authError ? (
+        // 4. DISPLAY THE ERROR INSTEAD OF 0 ORDERS
+        <div className="bg-rose-50 border border-rose-200 rounded-[2.5rem] p-8 text-center max-w-2xl mx-auto shadow-sm">
+          <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+          <h2 className="font-serif text-2xl font-bold text-gray-900 mb-2">Authentication Failed</h2>
+          <p className="text-sm text-gray-600 mb-6 font-mono bg-white p-3 rounded-lg border border-rose-100 break-words">{authError}</p>
+          <Link href="/admin/login" className="inline-block bg-black text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-md">
+            Log in to Admin Portal
+          </Link>
         </div>
       ) : (
         <div className="space-y-6">
