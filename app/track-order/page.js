@@ -4,19 +4,36 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { Package, Clock, ShieldAlert } from 'lucide-react';
+import { Package, Clock, ShieldAlert, AlertCircle } from 'lucide-react';
 
 export default function TrackOrderPage() {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
   useEffect(() => {
     const savedUser = localStorage.getItem('aq_user');
     if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      fetchUserOrders(parsedUser.userId);
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        
+        // Robust ID extraction mapping different payload structures
+        const userId = parsedUser.userId || parsedUser._id || parsedUser.id;
+        
+        if (!userId) {
+          throw new Error("Corrupted session: User ID is missing.");
+        }
+        
+        fetchUserOrders(userId);
+      } catch (err) {
+        console.error("Session parse error", err);
+        setError("Failed to read user session. Please log out and back in.");
+        setIsLoading(false);
+      }
     } else {
       setIsLoading(false);
     }
@@ -24,11 +41,25 @@ export default function TrackOrderPage() {
 
   const fetchUserOrders = async (userId) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/my-orders/${userId}`);
+      const token = localStorage.getItem('token');
+      
+      const res = await fetch(`${API_URL}/api/orders/my-orders/${userId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Server Error (${res.status}): ${errorText}`);
+      }
+      
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching orders:', err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +86,15 @@ export default function TrackOrderPage() {
             <Link href="/login" className="inline-block bg-black text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all shadow-md">
               Sign In Now
             </Link>
+          </div>
+        ) : error ? (
+          <div className="bg-rose-50 border border-rose-200 shadow-xl rounded-[3rem] p-12 text-center max-w-lg mx-auto">
+            <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+            <h2 className="font-serif text-2xl font-bold mb-2">Failed to Load Orders</h2>
+            <p className="text-xs text-gray-700 font-mono bg-white p-3 rounded-lg border border-rose-100 break-words mb-6">{error}</p>
+            <button onClick={() => window.location.reload()} className="bg-black text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all cursor-pointer">
+              Retry Connection
+            </button>
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white/70 backdrop-blur-2xl border border-white/80 shadow-xl rounded-[3rem] p-12 text-center max-w-lg mx-auto">
