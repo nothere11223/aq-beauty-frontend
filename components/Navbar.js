@@ -2,11 +2,18 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, Search, User, LogOut, Package, Settings, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext'; 
 
 export default function Navbar() {
+  const pathname = usePathname();
+  
+  // Completely hide the customer navbar on any admin route
+  if (pathname && pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const cartContext = useCart(); 
   const cart = cartContext?.cart || [];
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -47,7 +54,6 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = (e) => {
-    // 1. Prevent ghost clicks or bubbling
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -101,7 +107,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Ensure backdrop physically unmounts instead of just hiding */}
       {isOpen && (
         <div 
           onClick={() => { setIsMobileMenuOpen(false); setIsSearchOpen(false); }}
@@ -225,7 +230,6 @@ export default function Navbar() {
             </div>
           </header>
 
-          {/* Conditionally rendered search dropdown */}
           {isSearchOpen && (
             <div className="absolute left-0 right-0 top-[calc(100%+1rem)] bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-4 sm:p-5 animate-in slide-in-from-top-4 fade-in duration-300">
               <form onSubmit={handleSearchSubmit} className="flex items-center space-x-3">
@@ -244,7 +248,6 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Conditionally rendered Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="absolute left-0 right-0 top-[calc(100%+1rem)] md:hidden bg-white/95 backdrop-blur-3xl border border-white/80 shadow-2xl rounded-[2.5rem] p-6 flex flex-col space-y-2 animate-in slide-in-from-top-4 fade-in duration-300">
               <button type="button" onClick={() => handleNavigation('/')} className="text-left text-xs font-bold uppercase tracking-widest text-gray-900 py-3 px-5 rounded-2xl hover:bg-gray-100/50">Home</button>

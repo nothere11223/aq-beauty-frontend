@@ -1,132 +1,198 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Lock, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
-export default function AdminLogin() {
+export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false); // Toggle between Login & Register
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // Exact live backend URL for production
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
-
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+
+    // Choose endpoint based on mode
+    const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+    const payload = isRegistering ? { name, email, password } : { email, password };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Invalid credentials');
+      if (!res.ok) {
+        throw new Error(data.error || data.message || (isRegistering ? 'Registration failed' : 'Login failed'));
       }
 
-      localStorage.setItem('aq_admin_token', data.token);
-      router.push('/admin');
+      if (data.token) localStorage.setItem('token', data.token);
+      localStorage.setItem('aq_user', JSON.stringify(data.user || data));
+
+      router.push('/shop');
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || 'Failed to connect to server. If the backend is on a free tier, it may be waking up—please try again in 10 seconds.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Google authentication failed');
+      }
+
+      if (data.token) localStorage.setItem('token', data.token);
+      localStorage.setItem('aq_user', JSON.stringify(data.user));
+
+      router.push('/shop');
+    } catch (err) {
+      console.error(err);
+      setError('Google login failed to reach server. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen relative flex justify-center items-center p-4 overflow-hidden bg-[#f0f7f5] antialiased">
-      
-      {/* Apple-Style Ambient Background Blurs (Matches your brand colors) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#78a59b]/20 blur-[120px]"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#d1e7e2]/40 blur-[150px]"></div>
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md px-4">
+          <Link href="/shop" className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black mb-4 inline-block transition-colors">
+            &larr; Back to Shop
+          </Link>
+          <h2 className="text-center font-serif text-3xl sm:text-4xl font-extrabold text-gray-900">
+            {isRegistering ? 'Create an Account' : 'Sign in to your account'}
+          </h2>
+        </div>
 
-      {/* Main Glass Container - iOS Entrance Animation */}
-      <div 
-        className={`relative z-10 w-full max-w-[28rem] transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isMounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'
-        }`}
-      >
-        <div className="bg-white/60 backdrop-blur-[40px] border border-white/80 shadow-[0_20px_60px_rgba(0,0,0,0.05)] rounded-[3rem] p-10 sm:p-14">
-          
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-white/80 backdrop-blur-xl border border-white rounded-[1.5rem] shadow-sm flex items-center justify-center mx-auto mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
-              <ShieldCheck className="w-10 h-10 text-[#4a7c73]" />
-            </div>
-            <h1 className="font-serif text-3xl font-bold text-gray-900 tracking-tight">Admin Portal</h1>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#78a59b] mt-3">AQ Beauty Hub</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+          <div className="bg-white/80 backdrop-blur-2xl border border-white py-8 px-6 shadow-xl rounded-[2.5rem] sm:px-10">
             
             {error && (
-              <div className="p-4 bg-rose-50/80 backdrop-blur-md border border-rose-100 rounded-2xl text-rose-600 text-[10px] font-bold uppercase tracking-wider text-center">
+              <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center">
                 {error}
               </div>
             )}
 
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 ml-2 block mb-2">Admin Email</label>
-              <div className="relative group">
-                <input 
-                  type="email" 
-                  name="email" 
-                  required 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  className="w-full bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl pl-12 pr-5 py-4 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#78a59b]/30 transition-all duration-300 shadow-sm group-hover:shadow-md" 
-                  placeholder="admin@aqbeauty.com" 
-                />
-                <Mail className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-[#78a59b]" />
+            {/* GOOGLE LOGIN BUTTON */}
+            <div className="flex justify-center mb-6 w-full overflow-hidden">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Authentication Failed')}
+                theme="outline"
+                size="large"
+                shape="rectangular"
+              />
+            </div>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-white text-gray-400 font-bold uppercase tracking-widest">Or email</span>
               </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 ml-2 block mb-2">Master Password</label>
-              <div className="relative group">
-                <input 
-                  type="password" 
-                  name="password" 
-                  required 
-                  value={formData.password} 
-                  onChange={handleChange} 
-                  className="w-full bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl pl-12 pr-5 py-4 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#78a59b]/30 transition-all duration-300 shadow-sm group-hover:shadow-md" 
-                  placeholder="••••••••" 
-                />
-                <Lock className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-[#78a59b]" />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full group mt-8 flex items-center justify-center space-x-2 bg-black text-white px-8 py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-gray-900 active:scale-[0.96] transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:opacity-50 shadow-[0_8px_20px_rgba(0,0,0,0.1)] cursor-pointer"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <span>Authenticate</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]" />
-                </>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              
+              {isRegistering && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="block w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
+                    placeholder="Jane Doe"
+                  />
+                </div>
               )}
-            </button>
-          </form>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
+                  placeholder="jane@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-xs font-bold uppercase tracking-[0.15em] text-white bg-black hover:bg-gray-800 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isLoading ? 'Please wait...' : (isRegistering ? 'Create Account' : 'Sign In')}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-8 text-center border-t border-gray-100 pt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRegistering(!isRegistering);
+                  setError('');
+                }}
+                className="text-xs font-bold uppercase tracking-widest text-[#4a7c73] hover:underline cursor-pointer"
+              >
+                {isRegistering ? 'Already have an account? Sign In' : "Don't have an account? Register"}
+              </button>
+            </div>
+
+          </div>
         </div>
       </div>
-
-    </div>
+    </GoogleOAuthProvider>
   );
 }
