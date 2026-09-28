@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Clock, CheckCircle2, Truck, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, Clock, CheckCircle2, Truck, XCircle, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [authError, setAuthError] = useState(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
@@ -17,18 +18,33 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     setIsLoading(true);
+    setAuthError(null);
     try {
-      const token = localStorage.getItem('token');
+      // 1. MUST use aq_admin_token for admin routes
+      const adminToken = localStorage.getItem('aq_admin_token');
+      
+      if (!adminToken) {
+        throw new Error('Admin token missing. You are not logged in as an administrator.');
+      }
+
       const res = await fetch(`${API_URL}/api/orders`, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Authorization': `Bearer ${adminToken}`
         }
       });
+      
+      // 2. Strict error checking
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Backend rejected request (Status: ${res.status}). Message: ${errorText}`);
+      }
+
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : (data.orders || []));
     } catch (err) {
       console.error('Failed to fetch admin orders:', err);
+      setAuthError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -37,12 +53,19 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      const token = localStorage.getItem('token');
+      // 1. MUST use aq_admin_token for updating status too!
+      const adminToken = localStorage.getItem('aq_admin_token');
+      
+      if (!adminToken) {
+        alert('Admin session expired. Please log in again.');
+        return;
+      }
+
       const res = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Authorization': `Bearer ${adminToken}`
         },
         body: JSON.stringify({ status: newStatus }),
       });
@@ -52,7 +75,8 @@ export default function AdminOrdersPage() {
           prev.map(order => order._id === orderId ? { ...order, status: newStatus } : order)
         );
       } else {
-        alert('Failed to update order status');
+        const errorText = await res.text();
+        alert(`Failed to update order status: ${errorText}`);
       }
     } catch (err) {
       console.error('Status update error:', err);
@@ -78,9 +102,8 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       
-      {/* Back to Dashboard Button */}
       <Link 
         href="/admin" 
         className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors group cursor-pointer w-max"
@@ -109,6 +132,12 @@ export default function AdminOrdersPage() {
       {isLoading ? (
         <div className="text-center py-20 text-gray-400 font-serif text-lg animate-pulse">
           Loading fulfillment queue...
+        </div>
+      ) : authError ? (
+        <div className="bg-rose-50 border border-rose-200 rounded-[2.5rem] p-8 text-center max-w-2xl mx-auto shadow-sm">
+          <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+          <h2 className="font-serif text-2xl font-bold text-gray-900 mb-2">Authentication Failed</h2>
+          <p className="text-sm text-gray-600 mb-6 font-mono bg-white p-3 rounded-lg border border-rose-100 break-words">{authError}</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-16 bg-white/50 rounded-[2rem] border border-white p-8">
