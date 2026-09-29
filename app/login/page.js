@@ -44,7 +44,7 @@ export default function LoginPage() {
       if (data.token) localStorage.setItem('token', data.token);
       localStorage.setItem('aq_user', JSON.stringify(data.user));
 
-      router.push('/profile'); // Redirect directly to profile upon success
+      router.push('/profile');
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to connect to server. Please try again.');
@@ -75,7 +75,7 @@ export default function LoginPage() {
       if (data.token) localStorage.setItem('token', data.token);
       localStorage.setItem('aq_user', JSON.stringify(data.user));
 
-      router.push('/profile'); // Redirect directly to profile upon success
+      router.push('/profile');
     } catch (err) {
       console.error(err);
       setError('Google login failed to reach server. Please try again.');
@@ -114,21 +114,22 @@ export default function LoginPage() {
           <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.05)] rounded-[3rem] py-10 px-6 sm:px-10">
             
             {error && (
-              <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center">
+              <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center animate-in fade-in">
                 {error}
               </div>
             )}
 
-            {/* Google Login is now available for BOTH Sign In and Sign Up */}
-            <div className="flex justify-center mb-6 w-full overflow-hidden rounded-xl border border-gray-200/50">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google Authentication Failed')}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-                width="100%"
-              />
+            {/* APPLE-STYLED LUXURY GOOGLE BUTTON WRAPPER */}
+            <div className="relative w-full flex justify-center mb-6">
+              <div className="w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white/50 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex justify-center py-1">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError('Google Authentication Failed')}
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                />
+              </div>
             </div>
 
             <div className="relative my-8">
