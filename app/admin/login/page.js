@@ -39,9 +39,8 @@ export default function AdminLoginPage() {
       const tokenToSave = data.token || data.adminToken || data.accessToken;
 
       if (tokenToSave) {
-        // Save BOTH keys to prevent any mismatch issues across your dashboard components
-        localStorage.setItem('adminToken', tokenToSave);
-        localStorage.setItem('token', tokenToSave);
+        // FIXED: Save directly as 'aq_admin_token' to match dashboard & orders pages
+        localStorage.setItem('aq_admin_token', tokenToSave);
         
         router.push('/admin');
       } else {
