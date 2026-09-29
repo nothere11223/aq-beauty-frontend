@@ -86,53 +86,40 @@ export default function LoginPage() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8 pb-36">
         
         <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 text-center">
-          <div className="mb-6 flex justify-center">
-            <Link 
-              href="/shop" 
-              className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-md border border-white text-gray-800 hover:bg-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-sm transition-all active:scale-95"
-            >
-              <span>&larr;</span>
-              <span>Back to Shop</span>
-            </Link>
-          </div>
-          
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-black text-white rounded-2xl mb-4 shadow-md">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-black text-white rounded-2xl mb-3 shadow-md">
             <Sparkles className="w-5 h-5" />
           </div>
           <h2 className="text-3xl font-extrabold text-gray-900 font-serif tracking-tight">
             {isRegistering ? 'Create Account' : 'Welcome Back'}
           </h2>
-          <p className="text-xs uppercase tracking-widest text-[#4a7c73] mt-2 font-bold">
+          <p className="text-xs uppercase tracking-widest text-[#4a7c73] mt-1 font-bold">
             Client Portal Access
           </p>
         </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-          <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.05)] rounded-[3rem] py-10 px-6 sm:px-10">
+        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
+          <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.05)] rounded-[3rem] py-8 px-6 sm:px-10">
             
             {error && (
-              <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center animate-in fade-in">
+              <div className="mb-5 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center animate-in fade-in">
                 {error}
               </div>
             )}
 
-            {/* APPLE-STYLED LUXURY GOOGLE BUTTON WRAPPER */}
-            <div className="relative w-full flex justify-center mb-6">
-              <div className="w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white/50 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-md hover:scale-[1.01] active:scale-[0.99] flex justify-center py-1">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google Authentication Failed')}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                />
-              </div>
+            <div className="flex justify-center mb-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Authentication Failed')}
+                theme="outline"
+                size="large"
+                shape="pill"
+              />
             </div>
 
-            <div className="relative my-8">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
@@ -143,7 +130,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
               {isRegistering && (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Full Name</label>
@@ -156,7 +143,7 @@ export default function LoginPage() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
+                      className="block w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
                       placeholder="Jane Doe"
                     />
                   </div>
@@ -174,7 +161,7 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
+                    className="block w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -191,7 +178,7 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
+                    className="block w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900 transition-all"
                     placeholder="••••••••"
                   />
                 </div>
@@ -201,14 +188,14 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-xs font-bold uppercase tracking-[0.15em] text-white bg-black hover:bg-gray-800 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-full shadow-lg text-xs font-bold uppercase tracking-[0.15em] text-white bg-black hover:bg-gray-800 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'Processing...' : (isRegistering ? 'Create Account' : 'Sign In')}
                 </button>
               </div>
             </form>
 
-            <div className="mt-8 text-center">
+            <div className="mt-6 text-center border-t border-gray-100/80 pt-5">
               <button
                 type="button"
                 onClick={() => {
@@ -219,6 +206,16 @@ export default function LoginPage() {
               >
                 {isRegistering ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
               </button>
+            </div>
+
+            <div className="mt-6 text-center">
+              <Link 
+                href="/shop" 
+                className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#4a7c73] hover:text-black transition-colors"
+              >
+                <span>&larr;</span>
+                <span>Back to Shop</span>
+              </Link>
             </div>
 
           </div>

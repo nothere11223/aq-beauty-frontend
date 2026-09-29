@@ -22,7 +22,6 @@ export default function ProfilePage() {
       const savedUser = localStorage.getItem('aq_user');
       if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
         const parsed = JSON.parse(savedUser);
-        // Normalize user image property on initial load
         setUser({
           ...parsed,
           image: parsed.image || parsed.profileImage
@@ -107,14 +106,9 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col antialiased relative">
       <Navbar />
 
-      <main className="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-8 pt-36 pb-32">
-        <div className="mb-10 text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#78a59b] mb-2 block">Client Portal</span>
-          <h1 className="font-serif text-4xl font-bold text-gray-900">My Account</h1>
-        </div>
-
+      <main className="flex-grow w-full max-w-2xl mx-auto px-4 sm:px-6 pt-24 pb-40">
         {!user ? (
-          <div className="bg-white/70 backdrop-blur-2xl border border-white/80 shadow-xl rounded-[3rem] p-12 text-center max-w-md mx-auto">
+          <div className="bg-white/70 backdrop-blur-2xl border border-white/80 shadow-xl rounded-[3rem] p-12 text-center max-w-md mx-auto mt-10">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
             <h2 className="font-serif text-2xl font-bold mb-2">Not Signed In</h2>
             <p className="text-xs text-gray-500 mb-6">Access your personal details and order history by signing in.</p>
@@ -123,34 +117,32 @@ export default function ProfilePage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] p-8 sm:p-10">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
-                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-                  
+          <div className="space-y-5">
+            <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6 pb-6 border-b border-gray-100 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-5">
                   <div 
                     className={`relative flex-shrink-0 ${userImage ? 'cursor-pointer hover:scale-[1.02] transition-transform' : ''}`} 
                     onClick={(e) => {
                       e.preventDefault();
                       if (userImage) setIsFullscreen(true);
                     }}
-                    title={userImage ? "Tap to view full photo" : ""}
                   >
-                    <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white">
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white">
                       {isUploading ? (
                         <Loader2 className="w-8 h-8 animate-spin text-white" />
                       ) : userImage ? (
                         <img src={userImage} alt={user.name} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="font-serif text-5xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
+                        <span className="font-serif text-4xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-2 sm:mt-0">
-                    <h2 className="font-serif text-3xl font-bold text-gray-900">{user.name}</h2>
-                    <span className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-[#4a7c73] mt-2 bg-[#4a7c73]/10 px-4 py-1.5 rounded-full">
-                      <ShieldCheck className="w-4 h-4 mr-1.5" /> Verified Client
+                  <div>
+                    <h2 className="font-serif text-2xl font-bold text-gray-900">{user.name}</h2>
+                    <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-widest text-[#4a7c73] mt-2 bg-[#4a7c73]/10 px-3 py-1 rounded-full">
+                      <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verified Client
                     </span>
                   </div>
                 </div>
@@ -159,9 +151,9 @@ export default function ProfilePage() {
                   type="button"
                   disabled={isUploading}
                   onClick={() => fileInputRef.current.click()}
-                  className="group flex-shrink-0 whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 transition-all shadow-xl cursor-pointer outline-none mt-4 sm:mt-0"
+                  className="group whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-5 py-3 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 transition-all shadow-md cursor-pointer outline-none"
                 >
-                  <Edit3 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  <Edit3 className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
                   <span>{isUploading ? 'Uploading...' : 'Change Photo'}</span>
                 </button>
 
@@ -174,50 +166,50 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div className="space-y-6">
-                <div className="flex items-center space-x-5">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
-                    <Mail className="w-5 h-5 text-gray-700" />
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4 bg-gray-50/60 p-4 rounded-2xl border border-gray-100">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                    <Mail className="w-4 h-4 text-gray-700" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Registered Email</p>
-                    <p className="text-base font-medium text-gray-900 mt-0.5">{user.email}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Registered Email</p>
+                    <p className="text-sm font-semibold text-gray-900">{user.email}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-5">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
-                    <User className="w-5 h-5 text-gray-700" />
+                <div className="flex items-center space-x-4 bg-gray-50/60 p-4 rounded-2xl border border-gray-100">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                    <User className="w-4 h-4 text-gray-700" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Account ID</p>
-                    <p className="text-base font-mono text-gray-900 mt-0.5">{user.userId || user.id || user._id}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Account ID</p>
+                    <p className="text-sm font-mono text-gray-900">{user.userId || user.id || user._id}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Link href="/track-order" className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white/90 hover:shadow-lg transition-all group cursor-pointer">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-[#78a59b]/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Package className="w-5 h-5 text-[#4a7c73]" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link href="/track-order" className="bg-white/70 backdrop-blur-md border border-white rounded-[2rem] p-5 flex items-center justify-between hover:bg-white hover:shadow-md transition-all group cursor-pointer">
+                <div className="flex items-center space-x-3.5">
+                  <div className="w-10 h-10 bg-[#78a59b]/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Package className="w-4 h-4 text-[#4a7c73]" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-bold text-base text-gray-900">Order History</h3>
-                    <p className="text-xs uppercase tracking-widest text-gray-500 mt-0.5">Track your packages</p>
+                    <h3 className="font-bold text-sm text-gray-900">Order History</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-0.5">Track packages</p>
                   </div>
                 </div>
               </Link>
 
-              <button type="button" onClick={handleLogout} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-lg transition-all group cursor-pointer text-left outline-none">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-rose-100/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <LogOut className="w-5 h-5 text-rose-500" />
+              <button type="button" onClick={handleLogout} className="bg-white/70 backdrop-blur-md border border-white rounded-[2rem] p-5 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-md transition-all group cursor-pointer text-left outline-none">
+                <div className="flex items-center space-x-3.5">
+                  <div className="w-10 h-10 bg-rose-100/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <LogOut className="w-4 h-4 text-rose-500" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base text-rose-600">Sign Out</h3>
-                    <p className="text-xs uppercase tracking-widest text-rose-400/80 mt-0.5">End your session</p>
+                    <h3 className="font-bold text-sm text-rose-600">Sign Out</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-rose-400/80 mt-0.5">End session</p>
                   </div>
                 </div>
               </button>
