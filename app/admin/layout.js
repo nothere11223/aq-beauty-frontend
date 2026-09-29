@@ -16,13 +16,14 @@ export default function AdminLayout({ children }) {
   }
 
   const navLinks = [
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },
     { name: 'Products', href: '/admin/products', icon: Package },
-    { name: 'Inventory', href: '/admin/inventory', icon: LayoutDashboard },
+    { name: 'Inventory', href: '/admin/inventory', icon: Package },
   ];
 
   const activeIndex = navLinks.findIndex(link => 
-    pathname === link.href || (link.href !== '/admin' && pathname.startsWith(link.href))
+    link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href)
   );
 
   const handleMobileToggle = () => {
@@ -77,7 +78,7 @@ export default function AdminLayout({ children }) {
           }`}>
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = pathname === link.href || (link.href !== '/admin' && pathname.startsWith(link.href));
+              const isActive = link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href);
               return (
                 <Link 
                   key={link.name}
@@ -122,7 +123,7 @@ export default function AdminLayout({ children }) {
 
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = pathname === link.href || (link.href !== '/admin' && pathname.startsWith(link.href));
+              const isActive = link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href);
               
               return (
                 <Link 
