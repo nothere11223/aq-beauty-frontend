@@ -26,6 +26,8 @@ export default function AdminProducts() {
     rating: 5.0,
   });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
+
   useEffect(() => {
     setIsMounted(true);
     fetchProducts();
@@ -33,7 +35,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=50`);
+      const response = await fetch(`${API_URL}/api/products?limit=50`);
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       
@@ -78,6 +80,11 @@ export default function AdminProducts() {
     setErrorMessage('');
 
     try {
+      const adminToken = localStorage.getItem('aq_admin_token');
+      if (!adminToken) {
+        throw new Error('Admin token missing. Please log in again.');
+      }
+
       let finalImageUrl = formData.image; 
       const fileInput = document.getElementById('imageUpload');
 
@@ -85,7 +92,7 @@ export default function AdminProducts() {
         const uploadData = new FormData();
         uploadData.append('image', fileInput.files[0]);
 
-        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
+        const uploadRes = await fetch(`${API_URL}/api/upload`, {
           method: 'POST',
           body: uploadData,
         });
@@ -102,8 +109,8 @@ export default function AdminProducts() {
 
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/products/${editingId}` 
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
+        ? `${API_URL}/api/products/${editingId}` 
+        : `${API_URL}/api/products`;
 
       let parsedSalePrice = null;
       if (formData.isSale && formData.salePrice) {
@@ -112,7 +119,10 @@ export default function AdminProducts() {
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
@@ -123,7 +133,10 @@ export default function AdminProducts() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to save product in Database');
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Failed to save product: ${errText}`);
+      }
 
       await fetchProducts();
       setIsCreating(false);
@@ -142,8 +155,12 @@ export default function AdminProducts() {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
+      const adminToken = localStorage.getItem('aq_admin_token');
+      const response = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'DELETE',
+        headers: {
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+        }
       });
       if (!response.ok) throw new Error('Failed to delete product');
       

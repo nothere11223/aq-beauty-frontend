@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Clock, CheckCircle2, Truck, XCircle, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react';
+import { ShoppingBag, RefreshCw, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -20,7 +20,6 @@ export default function AdminOrdersPage() {
     setIsLoading(true);
     setAuthError(null);
     try {
-      // 1. MUST use aq_admin_token for admin routes
       const adminToken = localStorage.getItem('aq_admin_token');
       
       if (!adminToken) {
@@ -34,7 +33,6 @@ export default function AdminOrdersPage() {
         }
       });
       
-      // 2. Strict error checking
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Backend rejected request (Status: ${res.status}). Message: ${errorText}`);
@@ -53,7 +51,6 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     try {
-      // 1. MUST use aq_admin_token for updating status too!
       const adminToken = localStorage.getItem('aq_admin_token');
       
       if (!adminToken) {
@@ -102,101 +99,101 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 pb-16">
       
       <Link 
         href="/admin" 
-        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors group cursor-pointer w-max"
+        className="inline-flex items-center space-x-2 bg-black text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-all shadow-sm group cursor-pointer w-max"
       >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-300" />
         <span>Back to Dashboard</span>
       </Link>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
         <div>
-          <h1 className="font-serif text-3xl font-extrabold text-gray-900 tracking-tight">Order Management</h1>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4a7c73] mt-1">
+          <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Order Management</h1>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#4a7c73] mt-0.5">
             Real-time Storefront Fulfillments
           </p>
         </div>
 
         <button 
           onClick={fetchOrders}
-          className="inline-flex items-center space-x-2 bg-white/80 border border-gray-200 hover:bg-white text-gray-700 px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer w-max"
+          className="inline-flex items-center space-x-2 bg-white/80 border border-gray-200 hover:bg-white text-gray-700 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer w-max"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>Refresh Feed</span>
+          <span>Refresh</span>
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20 text-gray-400 font-serif text-lg animate-pulse">
+        <div className="text-center py-16 text-gray-400 font-serif text-base animate-pulse">
           Loading fulfillment queue...
         </div>
       ) : authError ? (
-        <div className="bg-rose-50 border border-rose-200 rounded-[2.5rem] p-8 text-center max-w-2xl mx-auto shadow-sm">
-          <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-          <h2 className="font-serif text-2xl font-bold text-gray-900 mb-2">Authentication Failed</h2>
-          <p className="text-sm text-gray-600 mb-6 font-mono bg-white p-3 rounded-lg border border-rose-100 break-words">{authError}</p>
+        <div className="bg-rose-50 border border-rose-200 rounded-[2rem] p-6 text-center max-w-xl mx-auto shadow-sm">
+          <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-3" />
+          <h2 className="font-serif text-xl font-bold text-gray-900 mb-2">Authentication Failed</h2>
+          <p className="text-xs text-gray-600 mb-4 font-mono bg-white p-3 rounded-xl border border-rose-100 break-words">{authError}</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="text-center py-16 bg-white/50 rounded-[2rem] border border-white p-8">
-          <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1.5} />
-          <h3 className="font-serif text-xl font-bold text-gray-700">No Orders Placed Yet</h3>
-          <p className="text-xs text-gray-400 mt-1">New customer transactions will populate here automatically.</p>
+        <div className="text-center py-12 bg-white/50 rounded-[2rem] border border-white p-6">
+          <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-2" strokeWidth={1.5} />
+          <h3 className="font-serif text-lg font-bold text-gray-700">No Orders Placed Yet</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Customer transactions will populate here.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {orders.map((order) => (
             <div 
               key={order._id} 
-              className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.03)] rounded-[2rem] p-6 sm:p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
+              className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_6px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-5 sm:p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4"
             >
-              <div className="space-y-3 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-xs font-mono font-bold bg-black text-white px-3 py-1 rounded-full">
+              <div className="space-y-2 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold bg-black text-white px-2.5 py-0.5 rounded-full">
                     #{order._id.slice(-6).toUpperCase()}
                   </span>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${getStatusBadge(order.status)}`}>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${getStatusBadge(order.status)}`}>
                     {order.status}
                   </span>
-                  <span className="text-xs text-gray-400">
-                    {new Date(order.createdAt).toLocaleString()}
+                  <span className="text-[11px] text-gray-400">
+                    {new Date(order.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-gray-900">{order.customerName}</h4>
-                  <p className="text-xs text-gray-500">{order.email} • {order.phone}</p>
-                  <p className="text-xs text-gray-400 mt-1">{order.address}, {order.city}</p>
+                  <h4 className="font-serif text-base font-bold text-gray-900">{order.customerName}</h4>
+                  <p className="text-[11px] text-gray-500">{order.email} • {order.phone}</p>
+                  <p className="text-[11px] text-gray-400">{order.address}, {order.city}</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3 overflow-x-auto max-w-full py-1">
+              <div className="flex items-center space-x-2 overflow-x-auto max-w-full py-1">
                 {order.items?.map((item, idx) => (
-                  <div key={idx} className="flex items-center space-x-2 bg-white/60 p-2 rounded-2xl border border-gray-100 flex-shrink-0">
-                    <div className="w-10 h-10 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
+                  <div key={idx} className="flex items-center space-x-2 bg-white/60 p-1.5 rounded-xl border border-gray-100 flex-shrink-0">
+                    <div className="w-8 h-8 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     </div>
-                    <div className="pr-2">
-                      <p className="text-xs font-bold text-gray-800 line-clamp-1 max-w-[100px]">{item.name}</p>
-                      <p className="text-[10px] text-gray-400">x{item.quantity} (${item.price?.toFixed(2)})</p>
+                    <div className="pr-1">
+                      <p className="text-[11px] font-bold text-gray-800 line-clamp-1 max-w-[90px]">{item.name}</p>
+                      <p className="text-[9px] text-gray-400">x{item.quantity} (${item.price?.toFixed(2)})</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-row lg:flex-col justify-between items-center lg:items-end w-full lg:w-auto pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-100 gap-4">
+              <div className="flex flex-row lg:flex-col justify-between items-center lg:items-end w-full lg:w-auto pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 gap-3">
                 <div className="text-left lg:text-right">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block">Total Revenue</span>
-                  <span className="font-serif text-2xl font-extrabold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 block">Total</span>
+                  <span className="font-serif text-xl font-extrabold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
                 </div>
 
                 <select
                   disabled={updatingId === order._id}
                   value={order.status}
                   onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                  className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 shadow-sm cursor-pointer disabled:opacity-50"
+                  className="bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-800 focus:outline-none shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Processing">Processing</option>
