@@ -36,11 +36,13 @@ export default function AdminLoginPage() {
         throw new Error(data.error || data.message || 'Admin authentication failed');
       }
 
-      // Check various common property names for the token from backend
       const tokenToSave = data.token || data.adminToken || data.accessToken;
 
       if (tokenToSave) {
+        // Save BOTH keys to prevent any mismatch issues across your dashboard components
         localStorage.setItem('adminToken', tokenToSave);
+        localStorage.setItem('token', tokenToSave);
+        
         router.push('/admin');
       } else {
         throw new Error('Server response succeeded but did not return a valid token.');
