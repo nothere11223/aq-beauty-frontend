@@ -51,27 +51,26 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-black text-white rounded-2xl mb-3 shadow-md">
-          <ShieldAlert className="w-6 h-6" />
+    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="inline-flex items-center justify-center w-11 h-11 bg-black text-white rounded-2xl mb-2 shadow-md">
+          <ShieldAlert className="w-5 h-5" />
         </div>
-        <h2 className="font-serif text-3xl font-extrabold text-gray-900">Admin Portal</h2>
-        <p className="text-xs uppercase tracking-widest text-[#4a7c73] mt-1 font-bold">Secure Management Access</p>
+        <h2 className="font-serif text-2xl font-extrabold text-gray-900">Admin Portal</h2>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white/80 backdrop-blur-2xl border border-white py-8 px-6 shadow-xl rounded-[2.5rem] sm:px-10">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md px-4">
+        <div className="bg-white/90 backdrop-blur-2xl border border-white/90 py-6 px-6 shadow-xl rounded-[2.5rem] sm:px-10">
           
           {error && (
-            <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-2xl text-xs font-bold text-center">
+            <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-2.5 rounded-2xl text-xs font-bold text-center">
               {error}
             </div>
           )}
 
-          <form className="space-y-5" onSubmit={handleAdminLogin}>
+          <form className="space-y-4" onSubmit={handleAdminLogin}>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Admin Email</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 ml-1">Admin Email</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                   <Mail className="w-4 h-4" />
@@ -81,14 +80,14 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
+                  className="block w-full pl-11 pr-4 py-3 bg-gray-50/60 border border-gray-200/80 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
                   placeholder="admin@aqbeauty.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Password</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 ml-1">Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                   <Lock className="w-4 h-4" />
@@ -98,7 +97,7 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
+                  className="block w-full pl-11 pr-4 py-3 bg-gray-50/60 border border-gray-200/80 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 text-gray-900"
                   placeholder="••••••••"
                 />
               </div>
@@ -108,7 +107,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-xs font-bold uppercase tracking-[0.15em] text-white bg-black hover:bg-gray-800 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-full shadow-lg text-[11px] font-bold uppercase tracking-[0.15em] text-white bg-black hover:bg-gray-800 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? 'Authenticating...' : 'Access Admin Dashboard'}
               </button>
