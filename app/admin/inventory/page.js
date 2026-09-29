@@ -11,13 +11,20 @@ export default function AdminInventory() {
   const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
+
   useEffect(() => {
     fetchInventory();
   }, []);
 
   const fetchInventory = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=100`);
+      const adminToken = localStorage.getItem('aq_admin_token');
+      const res = await fetch(`${API_URL}/api/products?limit=100`, {
+        headers: {
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+        }
+      });
       const data = await res.json();
       setProducts(data.products || []);
     } catch (err) {
@@ -40,10 +47,19 @@ export default function AdminInventory() {
   const handleSaveStock = async (id) => {
     setIsSaving(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}/stock`, {
+      const adminToken = localStorage.getItem('aq_admin_token');
+      if (!adminToken) {
+        alert('Admin token missing. Please log in again.');
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/products/${id}/stock`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stock: editValue }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ stock: Number(editValue) }),
       });
 
       if (res.ok) {
@@ -53,8 +69,7 @@ export default function AdminInventory() {
         setEditingId(null);
       } else {
         const errorData = await res.json().catch(() => ({}));
-        console.error("Backend Error Details:", errorData);
-        alert(`Backend Error: ${errorData.error || 'Check your Node terminal'}`);
+        alert(`Backend Error: ${errorData.error || 'Failed to update stock'}`);
       }
     } catch (err) {
       console.error('Stock update network error:', err);
@@ -72,14 +87,13 @@ export default function AdminInventory() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out pb-20">
       
-      {/* Back to Dashboard Button */}
       <Link 
         href="/admin" 
-        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors group cursor-pointer w-max"
+        className="inline-flex items-center space-x-2 bg-black text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-all shadow-sm group cursor-pointer w-max"
       >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-300" />
         <span>Back to Dashboard</span>
       </Link>
 
@@ -109,7 +123,7 @@ export default function AdminInventory() {
             return (
               <div 
                 key={item._id} 
-                className="bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-[2rem] p-5 flex flex-col md:flex-row md:items-center justify-between hover:shadow-md hover:bg-white/80 transition-all duration-300 gap-4"
+                className="bg-white/90 backdrop-blur-md border border-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-5 flex flex-col md:flex-row md:items-center justify-between hover:shadow-md transition-all duration-300 gap-4"
               >
                 
                 <div className="flex items-center space-x-4 flex-1">

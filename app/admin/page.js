@@ -108,15 +108,15 @@ export default function AdminDashboard() {
         <div className="space-y-4">
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-5">
+            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-5">
               <div className="w-10 h-10 bg-[#e2f0ed] text-[#4a7c73] rounded-full flex items-center justify-center border border-[#d1e7e2] mb-3">
                 <DollarSign className="w-4 h-4" />
               </div>
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-0.5">Total Revenue</h3>
-              <p className="font-serif text-2xl font-bold text-gray-900">${stats.revenue.toFixed(2)}</p>
+              <p className="font-serif text-2xl font-bold text-gray-900">Rs. {stats.revenue.toLocaleString()}</p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-5">
+            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-5">
               <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100 mb-3">
                 <ShoppingBag className="w-4 h-4" />
               </div>
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
               <p className="font-serif text-2xl font-bold text-gray-900">{stats.activeOrders}</p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-5">
+            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-5">
               <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center border border-purple-100 mb-3">
                 <Package className="w-4 h-4" />
               </div>
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-6">
+            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-6">
               <div className="flex items-center space-x-2.5 mb-4">
                 <AlertCircle className="w-4 h-4 text-rose-500" />
                 <h2 className="font-serif text-lg font-bold text-gray-900">Low Stock Alerts</h2>
@@ -165,14 +165,14 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] rounded-[2rem] p-6 flex flex-col justify-between">
+            <div className="bg-white/95 backdrop-blur-xl border border-white shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-[2rem] p-6 flex flex-col justify-between">
               <div>
                 <h2 className="font-serif text-lg font-bold text-gray-900 mb-1">Management Portal</h2>
                 <p className="text-xs text-gray-500 mb-4">Quickly navigate storefront controls.</p>
               </div>
               
               <div className="space-y-3">
-                <Link href="/admin/orders" className="group flex items-center justify-between p-4 bg-white/50 hover:bg-white border border-white rounded-xl shadow-sm transition-all">
+                <Link href="/admin/orders" className="group flex items-center justify-between p-4 bg-white/60 hover:bg-white border border-gray-100 rounded-xl shadow-sm transition-all">
                   <div className="flex items-center space-x-2.5 text-gray-900">
                     <ShoppingBag className="w-4 h-4 text-[#4a7c73]" />
                     <span className="text-xs font-bold tracking-wide">Process Orders</span>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                   <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4a7c73] group-hover:translate-x-1 transition-transform" />
                 </Link>
                 
-                <Link href="/admin/products" className="group flex items-center justify-between p-4 bg-white/50 hover:bg-white border border-white rounded-xl shadow-sm transition-all">
+                <Link href="/admin/products" className="group flex items-center justify-between p-4 bg-white/60 hover:bg-white border border-gray-100 rounded-xl shadow-sm transition-all">
                   <div className="flex items-center space-x-2.5 text-gray-900">
                     <Package className="w-4 h-4 text-[#4a7c73]" />
                     <span className="text-xs font-bold tracking-wide">Product Catalog</span>
