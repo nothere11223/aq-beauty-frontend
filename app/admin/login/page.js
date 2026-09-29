@@ -35,6 +35,7 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Admin authentication failed');
       }
 
+      // CRITICAL FIX: Save explicitly as 'adminToken' to match the dashboard requirements
       if (data.token) {
         localStorage.setItem('adminToken', data.token);
       }
