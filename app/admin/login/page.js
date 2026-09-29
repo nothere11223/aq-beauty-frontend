@@ -30,17 +30,21 @@ export default function AdminLoginPage() {
       });
 
       const data = await res.json();
+      console.log("Admin Login Response Data:", data);
 
       if (!res.ok) {
-        throw new Error(data.error || 'Admin authentication failed');
+        throw new Error(data.error || data.message || 'Admin authentication failed');
       }
 
-      // CRITICAL FIX: Save explicitly as 'adminToken' to match the dashboard requirements
-      if (data.token) {
-        localStorage.setItem('adminToken', data.token);
-      }
+      // Check various common property names for the token from backend
+      const tokenToSave = data.token || data.adminToken || data.accessToken;
 
-      router.push('/admin');
+      if (tokenToSave) {
+        localStorage.setItem('adminToken', tokenToSave);
+        router.push('/admin');
+      } else {
+        throw new Error('Server response succeeded but did not return a valid token.');
+      }
     } catch (err) {
       console.error(err);
       setError(err.message || 'Invalid admin credentials or server error.');
