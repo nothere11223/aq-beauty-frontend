@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, User, Sparkles } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function LoginPage() {
   const router = useRouter();
