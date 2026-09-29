@@ -95,9 +95,7 @@ export default function LoginPage() {
           <h2 className="text-3xl font-extrabold text-gray-900 font-serif tracking-tight">
             {isRegistering ? 'Create Account' : 'Welcome Back'}
           </h2>
-          <p className="text-xs uppercase tracking-widest text-[#4a7c73] mt-1 font-bold">
-            Client Portal Access
-          </p>
+          
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-md w-full">

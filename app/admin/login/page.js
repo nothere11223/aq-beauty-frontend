@@ -51,16 +51,16 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-11 h-11 bg-black text-white rounded-2xl mb-2 shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col items-center justify-start pt-12 sm:pt-20 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md text-center mb-6">
+        <div className="inline-flex items-center justify-center w-11 h-11 bg-black text-white rounded-2xl mb-2.5 shadow-md">
           <ShieldAlert className="w-5 h-5" />
         </div>
-        <h2 className="font-serif text-2xl font-extrabold text-gray-900">Admin Portal</h2>
+        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-gray-900">Admin Portal</h2>
       </div>
 
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white/90 backdrop-blur-2xl border border-white/90 py-6 px-6 shadow-xl rounded-[2.5rem] sm:px-10">
+      <div className="w-full max-w-md px-2">
+        <div className="bg-white/90 backdrop-blur-2xl border border-white/90 py-6 px-6 sm:px-8 shadow-xl rounded-[2.5rem]">
           
           {error && (
             <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-600 px-4 py-2.5 rounded-2xl text-xs font-bold text-center">
