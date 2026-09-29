@@ -30,7 +30,7 @@ export default function ProductDetailPage() {
         setProduct(data);
       } catch (err) {
         console.error(err);
-        router.push('/shop'); // Redirect back to shop if ID is invalid
+        router.push('/shop'); 
       } finally {
         setIsLoading(false);
       }
@@ -43,17 +43,20 @@ export default function ProductDetailPage() {
     setIsAdding(true);
     setTimeout(() => {
       if (addToCart && product) {
+        // FIXED: Use salePrice if the item is on sale, otherwise use regular price
+        const finalPrice = (product.isSale && product.salePrice) ? product.salePrice : product.price;
+        
         addToCart({
           id: product._id || product.id,
           name: product.name,
-          price: product.price,
+          price: finalPrice, 
           image: product.image,
           quantity: 1
         });
       }
       setIsAdding(false);
       if (typeof openCart === 'function') openCart(true);
-    }, 400); // Small delay for tactile button animation
+    }, 400); 
   };
 
   if (isLoading) {
@@ -76,7 +79,6 @@ export default function ProductDetailPage() {
 
       <main className="flex-grow w-full max-w-[92%] xl:max-w-[1200px] mx-auto px-4 sm:px-8 pt-32 sm:pt-40 pb-20">
         
-        {/* Back Navigation */}
         <Link 
           href="/shop"
           className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-10 group"
@@ -85,12 +87,18 @@ export default function ProductDetailPage() {
           <span>Back to Shop</span>
         </Link>
 
-        {/* Main Product Card */}
         <div className="bg-white/60 backdrop-blur-3xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.04)] rounded-[3rem] sm:rounded-[4rem] p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row gap-12 lg:gap-20 relative overflow-hidden">
           
-          {/* Left: Product Image */}
           <div className="w-full lg:w-1/2">
             <div className="aspect-square bg-white/50 rounded-[2.5rem] sm:rounded-[3rem] p-4 border border-white shadow-sm relative group">
+              
+              {/* SALE BADGE ADDED HERE */}
+              {product.isSale && (
+                <span className="absolute top-8 left-8 z-20 bg-rose-500 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm">
+                  Sale
+                </span>
+              )}
+
               <button className="absolute top-8 right-8 w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 z-10 transition-all shadow-sm active:scale-90">
                 <Heart className="w-5 h-5" />
               </button>
@@ -102,7 +110,6 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Right: Product Details */}
           <div className="w-full lg:w-1/2 flex flex-col justify-center">
             
             <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-white shadow-sm mb-6 w-max">
@@ -127,9 +134,23 @@ export default function ProductDetailPage() {
               </span>
             </div>
 
-            <p className="font-serif text-3xl sm:text-4xl text-gray-900 mb-8">
-              ${product.price?.toFixed(2)}
-            </p>
+            {/* FIXED: PKR Pricing Display Logic */}
+            <div className="mb-8">
+              {product.isSale && product.salePrice ? (
+                <div className="flex items-end space-x-4">
+                  <p className="font-serif text-3xl sm:text-4xl text-rose-500">
+                    Rs. {product.salePrice.toLocaleString()}
+                  </p>
+                  <p className="font-serif text-xl sm:text-2xl text-gray-400 line-through pb-1">
+                    Rs. {product.price.toLocaleString()}
+                  </p>
+                </div>
+              ) : (
+                <p className="font-serif text-3xl sm:text-4xl text-gray-900">
+                  Rs. {product.price?.toLocaleString()}
+                </p>
+              )}
+            </div>
 
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed font-medium mb-10">
               {product.description}

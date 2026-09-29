@@ -18,6 +18,7 @@ export default function AdminProducts() {
     name: '',
     category: 'Skincare',
     price: '',
+    salePrice: '',
     stock: '',
     description: '',
     image: '',
@@ -59,6 +60,7 @@ export default function AdminProducts() {
       name: product.name,
       category: product.category || 'Skincare',
       price: product.price,
+      salePrice: product.salePrice || '',
       stock: product.stock,
       description: product.description,
       image: product.image,
@@ -88,7 +90,7 @@ export default function AdminProducts() {
           body: uploadData,
         });
 
-        if (!uploadRes.ok) throw new Error('Image upload to Cloudinary failed');
+        if (!uploadRes.ok) throw new Error('Image upload failed');
         
         const uploadJson = await uploadRes.json();
         finalImageUrl = uploadJson.imageUrl; 
@@ -103,12 +105,19 @@ export default function AdminProducts() {
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/products/${editingId}` 
         : `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
 
+      // Handle optional sale price
+      let parsedSalePrice = null;
+      if (formData.isSale && formData.salePrice) {
+        parsedSalePrice = parseFloat(formData.salePrice);
+      }
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
+          salePrice: parsedSalePrice,
           stock: parseInt(formData.stock, 10),
           rating: parseFloat(formData.rating),
           image: finalImageUrl,
@@ -120,7 +129,7 @@ export default function AdminProducts() {
       await fetchProducts();
       setIsCreating(false);
       setEditingId(null);
-      setFormData({ name: '', category: 'Skincare', price: '', stock: '', description: '', image: '', isSale: false, rating: 5.0 });
+      setFormData({ name: '', category: 'Skincare', price: '', salePrice: '', stock: '', description: '', image: '', isSale: false, rating: 5.0 });
       if (fileInput) fileInput.value = '';
 
     } catch (err) {
@@ -148,17 +157,13 @@ export default function AdminProducts() {
   const handleCancel = () => {
     setIsCreating(false);
     setEditingId(null);
-    setFormData({ name: '', category: 'Skincare', price: '', stock: '', description: '', image: '', isSale: false, rating: 5.0 });
+    setFormData({ name: '', category: 'Skincare', price: '', salePrice: '', stock: '', description: '', image: '', isSale: false, rating: 5.0 });
   };
 
   return (
     <div className={`transition-opacity duration-500 ease-out outline-none ${isMounted ? 'opacity-100' : 'opacity-0'}`} tabIndex={-1}>
       
-      {/* Back to Dashboard Button */}
-      <Link 
-        href="/admin" 
-        className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-6 group cursor-pointer w-max"
-      >
+      <Link href="/admin" className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-6 group cursor-pointer w-max">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
         <span>Back to Dashboard</span>
       </Link>
@@ -169,10 +174,7 @@ export default function AdminProducts() {
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mt-2">Manage Storefront & Database</p>
         </div>
         
-        <button 
-          onClick={isCreating ? handleCancel : () => setIsCreating(true)}
-          className="flex items-center space-x-2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 active:scale-95 transition-all shadow-md w-max cursor-pointer"
-        >
+        <button onClick={isCreating ? handleCancel : () => setIsCreating(true)} className="flex items-center space-x-2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 active:scale-95 transition-all shadow-md w-max cursor-pointer">
           {isCreating ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           <span>{isCreating ? 'Cancel' : 'New Product'}</span>
         </button>
@@ -203,13 +205,7 @@ export default function AdminProducts() {
                 )}
                 
                 <div className="flex flex-col space-y-2 w-full mt-2">
-                  <input 
-                    type="file" 
-                    id="imageUpload"
-                    accept="image/*"
-                    className="w-full bg-white border border-gray-200 rounded-2xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#e2f0ed] file:text-[#4a7c73] hover:file:bg-[#d1e7e2] transition-all cursor-pointer"
-                  />
-                  <p className="text-[9px] text-center text-gray-400 uppercase tracking-widest mt-1">Upload JPG or PNG</p>
+                  <input type="file" id="imageUpload" accept="image/*" className="w-full bg-white border border-gray-200 rounded-2xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#e2f0ed] file:text-[#4a7c73] hover:file:bg-[#d1e7e2] transition-all cursor-pointer" />
                 </div>
               </div>
             </div>
@@ -217,26 +213,13 @@ export default function AdminProducts() {
             <div className="lg:col-span-2 space-y-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Product Name</label>
-                <input 
-                  type="text" 
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="e.g. Radiant Glow Serum" 
-                  className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40"
-                />
+                <input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="e.g. Radiant Glow Serum" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div className="sm:col-span-1">
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Category</label>
-                  <select 
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40"
-                  >
+                  <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40">
                     <option value="Skincare">Skincare</option>
                     <option value="Makeup">Makeup</option>
                     <option value="Haircare">Haircare</option>
@@ -244,84 +227,42 @@ export default function AdminProducts() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Price ($)</label>
-                  <input 
-                    type="number" 
-                    name="price"
-                    step="0.01"
-                    required
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="0.00" 
-                    className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40"
-                  />
+                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Base Price (Rs.)</label>
+                  <input type="number" name="price" required min="0" value={formData.price} onChange={handleChange} placeholder="0" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Stock</label>
-                  <input 
-                    type="number" 
-                    name="stock"
-                    required
-                    value={formData.stock}
-                    onChange={handleChange}
-                    placeholder="50" 
-                    className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40"
-                  />
+                  <input type="number" name="stock" required min="0" value={formData.stock} onChange={handleChange} placeholder="50" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Rating</label>
-                  <input 
-                    type="number" 
-                    name="rating"
-                    step="0.1"
-                    min="1"
-                    max="5"
-                    value={formData.rating}
-                    onChange={handleChange}
-                    placeholder="5.0" 
-                    className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40"
-                  />
+                  <input type="number" name="rating" step="0.1" min="1" max="5" value={formData.rating} onChange={handleChange} placeholder="5.0" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3 bg-white/50 border border-gray-200 rounded-2xl px-5 py-3">
-                <input 
-                  type="checkbox" 
-                  name="isSale"
-                  id="isSaleCheckbox"
-                  checked={formData.isSale}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-black rounded border-gray-300 focus:ring-black cursor-pointer"
-                />
-                <label htmlFor="isSaleCheckbox" className="text-xs font-bold uppercase tracking-wider text-gray-700 cursor-pointer">
-                  Mark as On Sale (Featured in Sale Tab)
-                </label>
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="flex items-center space-x-3 bg-white/50 border border-gray-200 rounded-2xl px-5 py-3 h-[50px]">
+                  <input type="checkbox" name="isSale" id="isSaleCheckbox" checked={formData.isSale} onChange={handleChange} className="w-4 h-4 text-black rounded border-gray-300 focus:ring-black cursor-pointer" />
+                  <label htmlFor="isSaleCheckbox" className="text-xs font-bold uppercase tracking-wider text-gray-700 cursor-pointer">
+                    On Sale
+                  </label>
+                </div>
+                
+                {formData.isSale && (
+                  <div className="flex-1">
+                    <input type="number" name="salePrice" min="0" required={formData.isSale} value={formData.salePrice} onChange={handleChange} placeholder="Discounted Price (Rs.)" className="w-full bg-white border border-rose-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-200" />
+                  </div>
+                )}
               </div>
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Description</label>
-                <textarea 
-                  name="description"
-                  required
-                  rows="2"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Describe benefits and ingredients..." 
-                  className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 resize-none"
-                ></textarea>
+                <textarea name="description" required rows="2" value={formData.description} onChange={handleChange} placeholder="Describe benefits and ingredients..." className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 resize-none"></textarea>
               </div>
 
               <div className="flex justify-end pt-2">
-                <button 
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex items-center space-x-2 bg-black text-white px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-70"
-                >
-                  {isSaving ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></>
-                  ) : (
-                    <><Save className="w-4 h-4" /><span>{editingId ? 'Update Product' : 'Save to DB'}</span></>
-                  )}
+                <button type="submit" disabled={isSaving} className="flex items-center space-x-2 bg-black text-white px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-70">
+                  {isSaving ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></> : <><Save className="w-4 h-4" /><span>{editingId ? 'Update Product' : 'Save to DB'}</span></>}
                 </button>
               </div>
             </div>
@@ -357,21 +298,24 @@ export default function AdminProducts() {
                   <span className="text-xs font-semibold text-gray-500">★ {product.rating || 5.0}</span>
                 </div>
                 <h3 className="font-bold text-gray-900 text-sm mt-1">{product.name}</h3>
-                <p className="font-serif text-lg text-gray-900 mt-2">${product.price?.toFixed(2)}</p>
+                
+                <div className="flex items-center space-x-2 mt-2">
+                  {product.isSale && product.salePrice ? (
+                    <>
+                      <p className="font-serif text-lg text-rose-500">Rs. {product.salePrice.toLocaleString()}</p>
+                      <p className="text-xs text-gray-400 line-through">Rs. {product.price.toLocaleString()}</p>
+                    </>
+                  ) : (
+                    <p className="font-serif text-lg text-gray-900">Rs. {product.price.toLocaleString()}</p>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center space-x-2 mt-4 px-2 pt-4 border-t border-white/60">
-                <button 
-                  onClick={() => handleEdit(product)}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 rounded-full text-xs font-bold transition-colors cursor-pointer"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                  <span>Edit</span>
+                <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 rounded-full text-xs font-bold transition-colors cursor-pointer">
+                  <Edit2 className="w-3.5 h-3.5" /><span>Edit</span>
                 </button>
-                <button 
-                  onClick={() => handleDelete(product._id || product.id)}
-                  className="p-2.5 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded-full transition-colors cursor-pointer"
-                >
+                <button onClick={() => handleDelete(product._id || product.id)} className="p-2.5 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded-full transition-colors cursor-pointer">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -380,7 +324,6 @@ export default function AdminProducts() {
           ))}
         </div>
       )}
-
     </div>
   );
 }
