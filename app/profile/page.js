@@ -1,211 +1,254 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import { User, Mail, LogOut, Package, ShieldCheck, Loader2, Edit3, X } from 'lucide-react';
 
-export default function LoginPage() {
+export default function ProfilePage() {
   const router = useRouter();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fileInputRef = useRef(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aqbeautybackend-3i3sw4y5.b4a.run';
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    const endpoint = isRegistering ? `${API_URL}/api/auth/register` : `${API_URL}/api/auth/login`;
-    const payload = isRegistering ? { name, email, password } : { email, password };
-
+  useEffect(() => {
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || (isRegistering ? 'Registration failed' : 'Login failed'));
+      const savedUser = localStorage.getItem('aq_user');
+      if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
+        const parsed = JSON.parse(savedUser);
+        // Normalize user image property on initial load
+        setUser({
+          ...parsed,
+          image: parsed.image || parsed.profileImage
+        });
       }
-
-      if (data.token) localStorage.setItem('token', data.token);
-      localStorage.setItem('aq_user', JSON.stringify(data.user));
-
-      router.push('/shop');
-    } catch (err) {
-      console.error(err);
-      setError(err.message || 'Failed to connect to server. Please try again.');
+    } catch (e) {
+      console.error('Failed to parse user session', e);
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('aq_user');
+    localStorage.removeItem('token');
+    setUser(null);
+    router.push('/login');
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setIsLoading(true);
-    setError('');
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const currentUserId = user?.userId || user?._id || user?.id;
+    if (!currentUserId) {
+      alert('Session error: User ID not found. Please log out and sign back in.');
+      return;
+    }
+
+    setIsUploading(true);
     try {
-      const res = await fetch(`${API_URL}/api/auth/google`, {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const uploadRes = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error('Cloudinary upload failed');
+      const uploadData = await uploadRes.json();
+
+      const token = localStorage.getItem('token');
+      const updateRes = await fetch(`${API_URL}/api/auth/update/${currentUserId}`, {
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ token: credentialResponse.credential }),
+        body: JSON.stringify({ image: uploadData.imageUrl })
       });
+      if (!updateRes.ok) throw new Error('Database update failed');
+      const updatedUser = await updateRes.json();
 
-      const data = await res.json();
+      const normalizedUser = {
+        ...updatedUser,
+        image: updatedUser.image || updatedUser.profileImage
+      };
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Google authentication failed');
-      }
-
-      if (data.token) localStorage.setItem('token', data.token);
-      localStorage.setItem('aq_user', JSON.stringify(data.user));
-
-      router.push('/shop');
-    } catch (err) {
-      console.error(err);
-      setError('Google login failed to reach server. Please try again.');
+      setUser(normalizedUser);
+      localStorage.setItem('aq_user', JSON.stringify(normalizedUser));
+      
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update profile picture. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex items-center justify-center">
+        <div className="text-gray-500 font-serif text-xl animate-pulse">Loading profile...</div>
+      </div>
+    );
+  }
+
+  const userImage = user?.image || user?.profileImage;
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md px-4">
-          {/* Converted Back to Shop text into a clean button */}
-          <div className="mb-6">
-            <Link 
-              href="/shop" 
-              className="inline-flex items-center space-x-2 bg-white border border-gray-200 text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-sm transition-all"
-            >
-              <span>&larr;</span>
-              <span>Back to Shop</span>
+    <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] text-gray-900 flex flex-col antialiased relative">
+      <Navbar />
+
+      <main className="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-8 pt-36 pb-32">
+        <div className="mb-10 text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#78a59b] mb-2 block">Client Portal</span>
+          <h1 className="font-serif text-4xl font-bold text-gray-900">My Account</h1>
+        </div>
+
+        {!user ? (
+          <div className="bg-white/70 backdrop-blur-2xl border border-white/80 shadow-xl rounded-[3rem] p-12 text-center max-w-md mx-auto">
+            <User className="w-16 h-16 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
+            <h2 className="font-serif text-2xl font-bold mb-2">Not Signed In</h2>
+            <p className="text-xs text-gray-500 mb-6">Access your personal details and order history by signing in.</p>
+            <Link href="/login" className="inline-block bg-black text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all shadow-md">
+              Sign In
             </Link>
           </div>
-          
-          <h2 className="text-center text-3xl font-extrabold text-gray-900 font-serif">
-            {isRegistering ? 'Create your account' : 'Sign in to your account'}
-          </h2>
-        </div>
-
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
-            
-            {error && (
-              <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm text-center">
-                {error}
-              </div>
-            )}
-
-            {!isRegistering && (
-              <>
-                {/* GOOGLE LOGIN BUTTON */}
-                <div className="flex justify-center mb-6 w-full overflow-hidden">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError('Google Authentication Failed')}
-                    theme="outline"
-                    size="large"
-                    shape="rectangular"
-                    width="100%"
-                  />
-                </div>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+        ) : (
+          <div className="space-y-6">
+            <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] p-8 sm:p-10">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
+                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                  
+                  <div 
+                    className={`relative flex-shrink-0 ${userImage ? 'cursor-pointer hover:scale-[1.02] transition-transform' : ''}`} 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (userImage) setIsFullscreen(true);
+                    }}
+                    title={userImage ? "Tap to view full photo" : ""}
+                  >
+                    <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-br from-[#e2f0ed] to-[#78a59b] rounded-full flex items-center justify-center text-white shadow-inner overflow-hidden border-4 border-white">
+                      {isUploading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-white" />
+                      ) : userImage ? (
+                        <img src={userImage} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-serif text-5xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500 text-xs uppercase tracking-wider">Or email</span>
+
+                  <div className="mt-2 sm:mt-0">
+                    <h2 className="font-serif text-3xl font-bold text-gray-900">{user.name}</h2>
+                    <span className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-[#4a7c73] mt-2 bg-[#4a7c73]/10 px-4 py-1.5 rounded-full">
+                      <ShieldCheck className="w-4 h-4 mr-1.5" /> Verified Client
+                    </span>
                   </div>
                 </div>
-              </>
-            )}
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {isRegistering && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email address</label>
-                <div className="mt-1">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <div className="mt-1">
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
                 <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none cursor-pointer disabled:opacity-50"
+                  type="button"
+                  disabled={isUploading}
+                  onClick={() => fileInputRef.current.click()}
+                  className="group flex-shrink-0 whitespace-nowrap flex items-center justify-center space-x-2 bg-black text-white px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] hover:bg-gray-800 transition-all shadow-xl cursor-pointer outline-none mt-4 sm:mt-0"
                 >
-                  {isLoading ? 'Please wait...' : (isRegistering ? 'Create Account' : 'Sign In')}
+                  <Edit3 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  <span>{isUploading ? 'Uploading...' : 'Change Photo'}</span>
                 </button>
-              </div>
-            </form>
 
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRegistering(!isRegistering);
-                  setError('');
-                }}
-                className="text-xs text-gray-600 hover:text-black font-medium underline uppercase tracking-wider"
-              >
-                {isRegistering ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-              </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-center space-x-5">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                    <Mail className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Registered Email</p>
+                    <p className="text-base font-medium text-gray-900 mt-0.5">{user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-5">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 shadow-sm">
+                    <User className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Account ID</p>
+                    <p className="text-base font-mono text-gray-900 mt-0.5">{user.userId || user.id || user._id}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Link href="/track-order" className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-white/90 hover:shadow-lg transition-all group cursor-pointer">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-[#78a59b]/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Package className="w-5 h-5 text-[#4a7c73]" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-bold text-base text-gray-900">Order History</h3>
+                    <p className="text-xs uppercase tracking-widest text-gray-500 mt-0.5">Track your packages</p>
+                  </div>
+                </div>
+              </Link>
+
+              <button type="button" onClick={handleLogout} className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 flex items-center justify-between hover:bg-rose-50 hover:border-rose-100 hover:shadow-lg transition-all group cursor-pointer text-left outline-none">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-rose-100/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <LogOut className="w-5 h-5 text-rose-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-rose-600">Sign Out</h3>
+                    <p className="text-xs uppercase tracking-widest text-rose-400/80 mt-0.5">End your session</p>
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
+        )}
+      </main>
+      
+      <Footer />
+
+      {isFullscreen && userImage && (
+        <div 
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
+          onClick={() => setIsFullscreen(false)}
+        >
+          <button 
+            type="button"
+            className="absolute top-8 right-8 text-white/70 hover:text-white transition-all cursor-pointer outline-none"
+            onClick={() => setIsFullscreen(false)}
+          >
+            <X className="w-10 h-10 drop-shadow-lg" />
+          </button>
+          
+          <img 
+            src={userImage} 
+            alt="Full size profile" 
+            className="max-w-full max-h-[90vh] rounded-3xl shadow-2xl object-contain animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
-      </div>
-    </GoogleOAuthProvider>
+      )}
+    </div>
   );
 }
