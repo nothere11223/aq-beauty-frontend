@@ -51,7 +51,6 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 text-center">
-        {/* Styled Button for Back to Shop */}
         <div className="mb-6 flex justify-center">
           <Link 
             href="/shop" 
