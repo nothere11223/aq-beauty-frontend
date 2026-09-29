@@ -105,7 +105,6 @@ export default function AdminProducts() {
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/products/${editingId}` 
         : `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
 
-      // Handle optional sale price
       let parsedSalePrice = null;
       if (formData.isSale && formData.salePrice) {
         parsedSalePrice = parseFloat(formData.salePrice);
@@ -161,65 +160,63 @@ export default function AdminProducts() {
   };
 
   return (
-    <div className={`transition-opacity duration-500 ease-out outline-none ${isMounted ? 'opacity-100' : 'opacity-0'}`} tabIndex={-1}>
+    <div className={`transition-opacity duration-500 ease-out outline-none pb-20 ${isMounted ? 'opacity-100' : 'opacity-0'}`} tabIndex={-1}>
       
-      <Link href="/admin" className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors mb-6 group cursor-pointer w-max">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+      <Link href="/admin" className="inline-flex items-center space-x-2 bg-black text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-all shadow-sm mb-6 group cursor-pointer w-max">
+        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-300" />
         <span>Back to Dashboard</span>
       </Link>
 
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-gray-900 tracking-tight">Product Catalog</h1>
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mt-2">Manage Storefront & Database</p>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Product Catalog</h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Manage Storefront & Database</p>
         </div>
         
-        <button onClick={isCreating ? handleCancel : () => setIsCreating(true)} className="flex items-center space-x-2 bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 active:scale-95 transition-all shadow-md w-max cursor-pointer">
-          {isCreating ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+        <button onClick={isCreating ? handleCancel : () => setIsCreating(true)} className="flex items-center space-x-2 bg-black text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 active:scale-95 transition-all shadow-md w-max cursor-pointer">
+          {isCreating ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
           <span>{isCreating ? 'Cancel' : 'New Product'}</span>
         </button>
       </div>
 
       {isCreating && (
-        <form onSubmit={handleSave} className="mb-10 bg-white/80 backdrop-blur-2xl border border-white shadow-[0_12px_40px_rgba(0,0,0,0.05)] rounded-[3rem] p-8 sm:p-10 animate-in fade-in slide-in-from-top-4 duration-500">
-          <h3 className="font-serif text-2xl font-bold text-gray-900 mb-6">
+        <form onSubmit={handleSave} className="mb-8 bg-white/80 backdrop-blur-2xl border border-white shadow-[0_10px_30px_rgba(0,0,0,0.04)] rounded-[2.5rem] p-6 sm:p-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          <h3 className="font-serif text-xl font-bold text-gray-900 mb-5">
             {editingId ? 'Edit Product' : 'Publish New Item'}
           </h3>
           
           {errorMessage && (
-            <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-xs font-bold uppercase tracking-wider">
+            <div className="mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-xs font-bold uppercase tracking-wider">
               {errorMessage}
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="flex flex-col space-y-4">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2">Product Image</label>
-              <div className="w-full aspect-square bg-white/50 border border-gray-200 rounded-[2rem] flex flex-col items-center justify-center p-4 text-gray-400">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col space-y-3">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1">Product Image</label>
+              <div className="w-full aspect-square bg-white/50 border border-gray-200 rounded-[2rem] flex flex-col items-center justify-center p-3 text-gray-400">
                 {formData.image ? (
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover rounded-[1.5rem] mb-3" />
+                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover rounded-[1.5rem] mb-2" />
                 ) : (
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                    <ImageIcon className="w-6 h-6 opacity-50" />
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2">
+                    <ImageIcon className="w-5 h-5 opacity-50" />
                   </div>
                 )}
                 
-                <div className="flex flex-col space-y-2 w-full mt-2">
-                  <input type="file" id="imageUpload" accept="image/*" className="w-full bg-white border border-gray-200 rounded-2xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:font-bold file:bg-[#e2f0ed] file:text-[#4a7c73] hover:file:bg-[#d1e7e2] transition-all cursor-pointer" />
-                </div>
+                <input type="file" id="imageUpload" accept="image/*" className="w-full bg-white border border-gray-200 rounded-xl px-2 py-2 text-xs focus:outline-none file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[9px] file:uppercase file:tracking-widest file:font-bold file:bg-[#e2f0ed] file:text-[#4a7c73] cursor-pointer" />
               </div>
             </div>
 
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3.5">
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Product Name</label>
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="e.g. Radiant Glow Serum" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Product Name</label>
+                <input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="e.g. Radiant Glow Serum" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <div className="sm:col-span-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Category</label>
-                  <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Category</label>
+                  <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-3 text-xs text-gray-900 focus:outline-none">
                     <option value="Skincare">Skincare</option>
                     <option value="Makeup">Makeup</option>
                     <option value="Haircare">Haircare</option>
@@ -227,42 +224,42 @@ export default function AdminProducts() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Base Price (Rs.)</label>
-                  <input type="number" name="price" required min="0" value={formData.price} onChange={handleChange} placeholder="0" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Base Price (Rs.)</label>
+                  <input type="number" name="price" required min="0" value={formData.price} onChange={handleChange} placeholder="0" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Stock</label>
-                  <input type="number" name="stock" required min="0" value={formData.stock} onChange={handleChange} placeholder="50" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Stock</label>
+                  <input type="number" name="stock" required min="0" value={formData.stock} onChange={handleChange} placeholder="50" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Rating</label>
-                  <input type="number" name="rating" step="0.1" min="1" max="5" value={formData.rating} onChange={handleChange} placeholder="5.0" className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40" />
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Rating</label>
+                  <input type="number" name="rating" step="0.1" min="1" max="5" value={formData.rating} onChange={handleChange} placeholder="5.0" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 focus:outline-none" />
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <div className="flex items-center space-x-3 bg-white/50 border border-gray-200 rounded-2xl px-5 py-3 h-[50px]">
-                  <input type="checkbox" name="isSale" id="isSaleCheckbox" checked={formData.isSale} onChange={handleChange} className="w-4 h-4 text-black rounded border-gray-300 focus:ring-black cursor-pointer" />
-                  <label htmlFor="isSaleCheckbox" className="text-xs font-bold uppercase tracking-wider text-gray-700 cursor-pointer">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+                <div className="flex items-center space-x-2.5 bg-white/50 border border-gray-200 rounded-xl px-4 py-2.5 h-[42px]">
+                  <input type="checkbox" name="isSale" id="isSaleCheckbox" checked={formData.isSale} onChange={handleChange} className="w-4 h-4 text-black rounded border-gray-300 cursor-pointer" />
+                  <label htmlFor="isSaleCheckbox" className="text-[10px] font-bold uppercase tracking-wider text-gray-700 cursor-pointer">
                     On Sale
                   </label>
                 </div>
                 
                 {formData.isSale && (
                   <div className="flex-1">
-                    <input type="number" name="salePrice" min="0" required={formData.isSale} value={formData.salePrice} onChange={handleChange} placeholder="Discounted Price (Rs.)" className="w-full bg-white border border-rose-200 rounded-2xl px-5 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-200" />
+                    <input type="number" name="salePrice" min="0" required={formData.isSale} value={formData.salePrice} onChange={handleChange} placeholder="Discounted Price (Rs.)" className="w-full bg-white border border-rose-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none" />
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-2 block mb-1">Description</label>
-                <textarea name="description" required rows="2" value={formData.description} onChange={handleChange} placeholder="Describe benefits and ingredients..." className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#78a59b]/40 resize-none"></textarea>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 ml-1 block mb-1">Description</label>
+                <textarea name="description" required rows="2" value={formData.description} onChange={handleChange} placeholder="Describe benefits..." className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs text-gray-900 focus:outline-none resize-none"></textarea>
               </div>
 
-              <div className="flex justify-end pt-2">
-                <button type="submit" disabled={isSaving} className="flex items-center space-x-2 bg-black text-white px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-70">
-                  {isSaving ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></> : <><Save className="w-4 h-4" /><span>{editingId ? 'Update Product' : 'Save to DB'}</span></>}
+              <div className="flex justify-end pt-1">
+                <button type="submit" disabled={isSaving} className="flex items-center space-x-2 bg-black text-white px-6 py-3 rounded-full font-bold text-[10px] uppercase tracking-[0.15em] hover:bg-gray-800 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-70">
+                  {isSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Saving...</span></> : <><Save className="w-3.5 h-3.5" /><span>{editingId ? 'Update Product' : 'Save to DB'}</span></>}
                 </button>
               </div>
             </div>
@@ -271,52 +268,52 @@ export default function AdminProducts() {
       )}
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-8 h-8 text-[#78a59b] animate-spin" />
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="w-7 h-7 text-[#78a59b] animate-spin" />
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2.5rem] p-12 text-center">
-          <p className="text-gray-500 font-medium text-sm">No products found in the database. Click "New Product" to add your first item.</p>
+        <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-10 text-center">
+          <p className="text-gray-500 font-medium text-xs">No products found in the database.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {products.map((product) => (
-            <div key={product._id || product.id} className="bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-[2.5rem] p-4 flex flex-col hover:shadow-md hover:bg-white/85 transition-all duration-300 group">
+            <div key={product._id || product.id} className="bg-white/60 backdrop-blur-md border border-white shadow-sm rounded-[2rem] p-3 flex flex-col hover:shadow-md hover:bg-white/85 transition-all duration-300 group">
               
-              <div className="aspect-square bg-gray-50 rounded-[2rem] overflow-hidden mb-4 border border-gray-100 relative">
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+              <div className="aspect-square bg-gray-50 rounded-[1.5rem] overflow-hidden mb-3 border border-gray-100 relative">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 {product.isSale && (
-                  <span className="absolute top-3 left-3 bg-rose-500 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                  <span className="absolute top-2 left-2 bg-rose-500 text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shadow-sm">
                     Sale
                   </span>
                 )}
               </div>
 
-              <div className="px-2 flex-1">
+              <div className="px-1 flex-1">
                 <div className="flex justify-between items-start">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#4a7c73]">{product.category || 'Skincare'}</span>
-                  <span className="text-xs font-semibold text-gray-500">★ {product.rating || 5.0}</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-[#4a7c73]">{product.category || 'Skincare'}</span>
+                  <span className="text-[10px] font-semibold text-gray-500">★ {product.rating || 5.0}</span>
                 </div>
-                <h3 className="font-bold text-gray-900 text-sm mt-1">{product.name}</h3>
+                <h3 className="font-bold text-gray-900 text-xs mt-0.5 line-clamp-1">{product.name}</h3>
                 
-                <div className="flex items-center space-x-2 mt-2">
+                <div className="flex items-center space-x-1.5 mt-1">
                   {product.isSale && product.salePrice ? (
                     <>
-                      <p className="font-serif text-lg text-rose-500">Rs. {product.salePrice.toLocaleString()}</p>
-                      <p className="text-xs text-gray-400 line-through">Rs. {product.price.toLocaleString()}</p>
+                      <p className="font-serif text-sm text-rose-500">Rs. {product.salePrice.toLocaleString()}</p>
+                      <p className="text-[10px] text-gray-400 line-through">Rs. {product.price.toLocaleString()}</p>
                     </>
                   ) : (
-                    <p className="font-serif text-lg text-gray-900">Rs. {product.price.toLocaleString()}</p>
+                    <p className="font-serif text-sm text-gray-900">Rs. {product.price.toLocaleString()}</p>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 mt-4 px-2 pt-4 border-t border-white/60">
-                <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 rounded-full text-xs font-bold transition-colors cursor-pointer">
-                  <Edit2 className="w-3.5 h-3.5" /><span>Edit</span>
+              <div className="flex items-center space-x-1.5 mt-3 px-1 pt-3 border-t border-white/60">
+                <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center space-x-1 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-full text-[10px] font-bold transition-colors cursor-pointer">
+                  <Edit2 className="w-3 h-3" /><span>Edit</span>
                 </button>
-                <button onClick={() => handleDelete(product._id || product.id)} className="p-2.5 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded-full transition-colors cursor-pointer">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => handleDelete(product._id || product.id)} className="p-2 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded-full transition-colors cursor-pointer">
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
 

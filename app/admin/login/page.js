@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ShieldAlert, Lock, Mail } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -30,7 +29,6 @@ export default function AdminLoginPage() {
       });
 
       const data = await res.json();
-      console.log("Admin Login Response Data:", data);
 
       if (!res.ok) {
         throw new Error(data.error || data.message || 'Admin authentication failed');
@@ -39,9 +37,7 @@ export default function AdminLoginPage() {
       const tokenToSave = data.token || data.adminToken || data.accessToken;
 
       if (tokenToSave) {
-        // FIXED: Save directly as 'aq_admin_token' to match dashboard & orders pages
         localStorage.setItem('aq_admin_token', tokenToSave);
-        
         router.push('/admin');
       } else {
         throw new Error('Server response succeeded but did not return a valid token.');
@@ -57,16 +53,6 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7f5] via-[#e2f0ed] to-[#d1e7e2] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 text-center">
-        <div className="mb-6 flex justify-center">
-          <Link 
-            href="/shop" 
-            className="inline-flex items-center space-x-2 bg-white border border-gray-200 text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-sm transition-all"
-          >
-            <span>&larr;</span>
-            <span>Back to Shop</span>
-          </Link>
-        </div>
-
         <div className="inline-flex items-center justify-center w-12 h-12 bg-black text-white rounded-2xl mb-3 shadow-md">
           <ShieldAlert className="w-6 h-6" />
         </div>
