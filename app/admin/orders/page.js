@@ -177,7 +177,7 @@ export default function AdminOrdersPage() {
                     </div>
                     <div className="pr-1">
                       <p className="text-[11px] font-bold text-gray-800 line-clamp-1 max-w-[90px]">{item.name}</p>
-                      <p className="text-[9px] text-gray-400">x{item.quantity} (${item.price?.toFixed(2)})</p>
+                      <p className="text-[9px] text-gray-400">x{item.quantity} (Rs. {item.price?.toLocaleString()})</p>
                     </div>
                   </div>
                 ))}
@@ -186,7 +186,7 @@ export default function AdminOrdersPage() {
               <div className="flex flex-row lg:flex-col justify-between items-center lg:items-end w-full lg:w-auto pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 gap-3">
                 <div className="text-left lg:text-right">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 block">Total</span>
-                  <span className="font-serif text-xl font-extrabold text-gray-900">${order.totalAmount?.toFixed(2)}</span>
+                  <span className="font-serif text-xl font-extrabold text-gray-900">Rs. {order.totalAmount?.toLocaleString()}</span>
                 </div>
 
                 <select

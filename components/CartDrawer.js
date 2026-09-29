@@ -33,7 +33,6 @@ export default function CartDrawer() {
         onClick={() => setIsCartOpen(false)}
       />
 
-      {/* Increased bottom space so drawer clears the bottom mobile bar */}
       <div 
         className={`fixed top-4 bottom-24 right-4 w-[calc(100%-2rem)] sm:w-[420px] bg-white/95 backdrop-blur-3xl shadow-[-15px_15px_40px_rgba(0,0,0,0.1)] border border-white/80 z-[70] flex flex-col rounded-[2.5rem] overflow-hidden transition-transform duration-500 ${
           isCartOpen ? 'translate-x-0' : 'translate-x-[120%]'
@@ -59,7 +58,6 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* Deep bottom padding so items scroll past the checkout footer */}
         <div className="flex-1 overflow-y-auto p-6 pb-44 space-y-4 custom-scrollbar">
           {cart?.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-5 opacity-80">
@@ -89,7 +87,7 @@ export default function CartDrawer() {
 
                 <div className="flex-1 py-1">
                   <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h3>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">${item.price?.toFixed(2)}</p>
+                  <p className="text-xs text-gray-500 font-medium mt-0.5">Rs. {item.price?.toLocaleString()}</p>
                   
                   <div className="flex items-center space-x-3 mt-3 bg-white border border-gray-100 w-max rounded-full px-2 py-1 shadow-sm">
                     <button 
@@ -119,12 +117,11 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Absolute Footer pinned securely above the mobile bottom bar */}
         {cart?.length > 0 && (
           <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/95 backdrop-blur-md border-t border-gray-100 space-y-4 shadow-2xl rounded-b-[2.5rem]">
             <div className="flex justify-between items-end text-gray-900 px-2">
               <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Subtotal</span>
-              <span className="font-serif text-2xl font-bold leading-none">${cartTotal.toFixed(2)}</span>
+              <span className="font-serif text-2xl font-bold leading-none">Rs. {cartTotal.toLocaleString()}</span>
             </div>
             
             <button 

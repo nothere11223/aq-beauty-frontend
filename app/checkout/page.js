@@ -47,7 +47,7 @@ export default function CheckoutPage() {
   }, []);
 
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const shipping = cartTotal > 0 ? 10.00 : 0;
+  const shipping = cartTotal > 0 ? 500.00 : 0; // Standard shipping in PKR
   const finalTotal = cartTotal + shipping;
 
   const handleChange = (e) => {
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
                         <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
                         <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                       </div>
-                      <span className="text-sm font-bold">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="text-sm font-bold">Rs. {(item.price * item.quantity).toLocaleString()}</span>
                     </div>
                   ))
                 )}
@@ -209,15 +209,15 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 pt-4 space-y-3 mb-8">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal</span>
-                  <span>${cartTotal.toFixed(2)}</span>
+                  <span>Rs. {cartTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Shipping</span>
-                  <span>{cartTotal > 0 ? `$${shipping.toFixed(2)}` : '$0.00'}</span>
+                  <span>{cartTotal > 0 ? `Rs. ${shipping.toLocaleString()}` : 'Rs. 0'}</span>
                 </div>
                 <div className="flex justify-between text-xl font-serif font-bold text-gray-900 pt-2 border-t border-gray-200">
                   <span>Total</span>
-                  <span>${finalTotal.toFixed(2)}</span>
+                  <span>Rs. {finalTotal.toLocaleString()}</span>
                 </div>
               </div>
 
