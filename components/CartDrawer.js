@@ -9,7 +9,12 @@ export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart } = useCart();
   const router = useRouter();
 
-  const cartTotal = cart?.reduce((total, item) => total + (item.price * item.quantity), 0) || 0;
+  // FIX: Calculate total using salePrice if the item is on sale
+  const cartTotal = cart?.reduce((total, item) => {
+    const activePrice = item.isSale && item.salePrice ? item.salePrice : item.price;
+    return total + (activePrice * item.quantity);
+  }, 0) || 0;
+  
   const cartCount = cart?.reduce((total, item) => total + item.quantity, 0) || 0;
 
   const handleCheckoutClick = (e) => {
@@ -76,44 +81,49 @@ export default function CartDrawer() {
               </button>
             </div>
           ) : (
-            cart.map((item, index) => (
-              <div 
-                key={item._id || item.id || `cart-item-${index}`} 
-                className="flex gap-4 items-center bg-white/60 p-3.5 rounded-[1.5rem] border border-white shadow-sm"
-              >
-                <div className="w-20 h-20 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-
-                <div className="flex-1 py-1">
-                  <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h3>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">Rs. {item.price?.toLocaleString()}</p>
-                  
-                  <div className="flex items-center space-x-3 mt-3 bg-white border border-gray-100 w-max rounded-full px-2 py-1 shadow-sm">
-                    <button 
-                      onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)}
-                      className="text-gray-400 hover:text-black p-1 cursor-pointer"
-                    >
-                      <Minus className="w-3 h-3" strokeWidth={3} />
-                    </button>
-                    <span className="text-xs font-bold w-5 text-center text-gray-900">{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)}
-                      className="text-gray-400 hover:text-black p-1 cursor-pointer"
-                    >
-                      <Plus className="w-3 h-3" strokeWidth={3} />
-                    </button>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => removeFromCart(item._id || item.id)}
-                  className="p-2.5 mr-1 text-gray-300 bg-white border border-transparent rounded-full hover:border-rose-100 hover:bg-rose-50 hover:text-rose-500 cursor-pointer"
+            cart.map((item, index) => {
+              // FIX: Determine active price for display
+              const activePrice = item.isSale && item.salePrice ? item.salePrice : item.price;
+              
+              return (
+                <div 
+                  key={item._id || item.id || `cart-item-${index}`} 
+                  className="flex gap-4 items-center bg-white/60 p-3.5 rounded-[1.5rem] border border-white shadow-sm"
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))
+                  <div className="w-20 h-20 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="flex-1 py-1">
+                    <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h3>
+                    <p className="text-xs text-gray-500 font-medium mt-0.5">Rs. {activePrice?.toLocaleString()}</p>
+                    
+                    <div className="flex items-center space-x-3 mt-3 bg-white border border-gray-100 w-max rounded-full px-2 py-1 shadow-sm">
+                      <button 
+                        onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)}
+                        className="text-gray-400 hover:text-black p-1 cursor-pointer"
+                      >
+                        <Minus className="w-3 h-3" strokeWidth={3} />
+                      </button>
+                      <span className="text-xs font-bold w-5 text-center text-gray-900">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)}
+                        className="text-gray-400 hover:text-black p-1 cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3" strokeWidth={3} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => removeFromCart(item._id || item.id)}
+                    className="p-2.5 mr-1 text-gray-300 bg-white border border-transparent rounded-full hover:border-rose-100 hover:bg-rose-50 hover:text-rose-500 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
 

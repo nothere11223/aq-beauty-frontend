@@ -46,8 +46,13 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const shipping = cartTotal > 0 ? 500.00 : 0; // Standard shipping in PKR
+  // FIX: Calculate total using salePrice
+  const cartTotal = cart.reduce((total, item) => {
+    const activePrice = item.isSale && item.salePrice ? item.salePrice : item.price;
+    return total + (activePrice * item.quantity);
+  }, 0);
+  
+  const shipping = cartTotal > 0 ? 500.00 : 0;
   const finalTotal = cartTotal + shipping;
 
   const handleChange = (e) => {
@@ -59,19 +64,22 @@ export default function CheckoutPage() {
     if (cart.length === 0) return;
     
     setIsSubmitting(true);
-
     const token = localStorage.getItem('token');
 
+    // FIX: Pass the active sale price to the backend
     const orderPayload = {
       ...formData,
       userId: currentUser ? (currentUser.userId || currentUser._id || currentUser.id) : null,
-      items: cart.map(item => ({
-        productId: item.id || item._id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image
-      })),
+      items: cart.map(item => {
+        const activePrice = item.isSale && item.salePrice ? item.salePrice : item.price;
+        return {
+          productId: item.id || item._id,
+          name: item.name,
+          price: activePrice,
+          quantity: item.quantity,
+          image: item.image
+        };
+      }),
       totalAmount: finalTotal,
       status: 'Pending',
       paymentMethod: 'Cash on Delivery'
@@ -90,7 +98,7 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.error || 'Failed to place order');
+        throw new Error(errData.error || errData.message || 'Failed to place order');
       }
       
       clearCart();
@@ -191,18 +199,21 @@ export default function CheckoutPage() {
                 {cart.length === 0 ? (
                   <p className="text-sm text-gray-500">Your cart is empty.</p>
                 ) : (
-                  cart.map((item, idx) => (
-                    <div key={idx} className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  cart.map((item, idx) => {
+                    const activePrice = item.isSale && item.salePrice ? item.salePrice : item.price;
+                    return (
+                      <div key={idx} className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
+                          <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                        </div>
+                        <span className="text-sm font-bold">Rs. {(activePrice * item.quantity).toLocaleString()}</span>
                       </div>
-                      <div className="flex-grow">
-                        <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{item.name}</h4>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                      </div>
-                      <span className="text-sm font-bold">Rs. {(item.price * item.quantity).toLocaleString()}</span>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 
