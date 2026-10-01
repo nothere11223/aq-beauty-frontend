@@ -37,7 +37,8 @@ export default function AdminLoginPage() {
       const tokenToSave = data.token || data.adminToken || data.accessToken;
 
       if (tokenToSave) {
-        localStorage.setItem('aq_admin_token', tokenToSave);
+        // FIX: Match the exact key expected by app/admin/layout.js
+        localStorage.setItem('adminToken', tokenToSave);
         router.push('/admin');
       } else {
         throw new Error('Server response succeeded but did not return a valid token.');
