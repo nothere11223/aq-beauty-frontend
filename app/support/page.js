@@ -60,8 +60,8 @@ export default function SupportPage() {
               </div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Email Us</h3>
               <p className="text-xs text-gray-500 mb-4">Expect a reply within 24 hours.</p>
-              <a href="mailto:support@aqbeauty.com" className="text-sm font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
-                support@aqbeauty.com
+              <a href="mailto:orakzaiabdul70@gmail.com" className="text-sm font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
+                orakzaiabdul70@gmail.com
               </a>
             </div>
 
@@ -71,8 +71,8 @@ export default function SupportPage() {
               </div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Call Us</h3>
               <p className="text-xs text-gray-500 mb-4">Available Mon-Fri, 9am - 6pm (PKT).</p>
-              <a href="tel:+923000000000" className="text-sm font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
-                +92 (300) 000-0000
+              <a href="tel:+923140051441" className="text-sm font-bold text-gray-900 hover:text-[#4a7c73] transition-colors">
+                +92 314 0051441
               </a>
             </div>
 
@@ -83,7 +83,7 @@ export default function SupportPage() {
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-2">Headquarters</h3>
               <p className="text-xs text-gray-500 leading-relaxed">
                 AQ Beauty Studio<br />
-                Phase 3, Hayatabad<br />
+                Ring Road (Opposite Abasyn University,near Patang Chowk)<br />
                 Peshawar, Khyber Pakhtunkhwa<br />
                 Pakistan
               </p>
