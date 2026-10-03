@@ -24,8 +24,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      // 🔥 FIX: Changed aq_admin_token to adminToken to match the login page
-      const adminToken = localStorage.getItem('adminToken');
+      // Reverted to match all other pages
+      const adminToken = localStorage.getItem('aq_admin_token');
       
       if (!adminToken) {
         throw new Error('Admin token missing. You are not logged in as an administrator.');

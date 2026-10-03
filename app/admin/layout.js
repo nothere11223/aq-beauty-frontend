@@ -24,8 +24,8 @@ export default function AdminLayout({ children }) {
       return;
     }
 
-    // Check for the admin token
-    const token = localStorage.getItem('adminToken');
+    // Reverted to match original token format
+    const token = localStorage.getItem('aq_admin_token');
 
     if (!token) {
       // Bounce unauthorized users back to login
@@ -39,7 +39,8 @@ export default function AdminLayout({ children }) {
 
   // Handle Logout
   const handleSignOut = () => {
-    localStorage.removeItem('adminToken');
+    // Reverted to match original token format
+    localStorage.removeItem('aq_admin_token');
     router.push('/admin/login');
   };
 
@@ -209,8 +210,8 @@ export default function AdminLayout({ children }) {
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 lg:ml-72 p-4 sm:p-6 pt-28 lg:pt-6 min-h-screen flex flex-col">
+        {/* Main Content Area - FIXED PADDING */}
+        <main className="flex-1 lg:ml-72 px-4 pb-4 pt-[120px] sm:px-6 sm:pb-6 sm:pt-[130px] lg:p-6 min-h-screen flex flex-col">
           <div className="flex-1 w-full bg-white/40 backdrop-blur-sm border border-white shadow-[0_10px_40px_rgba(0,0,0,0.02)] rounded-[2.5rem] p-6 sm:p-12">
             {children}
           </div>
